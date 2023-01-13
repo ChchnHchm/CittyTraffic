@@ -2,6 +2,7 @@ package bigdata;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,7 +17,7 @@ import static org.apache.spark.sql.functions.expr;
 import static org.apache.spark.sql.functions.desc;
 
 public class CittyTrafficProject {
-        static String pathP3="user/auber/data_ple/citytraffic/Premiers\\ résultats/Fichiers\\ traitВs/P3/";
+        static String pathP3="/user/auber/data_ple/citytraffic/Premiers\\ résultats/Fichiers\\ traitВs/P3/Mixtra_EntrВe_Fac_1.csv";
 	public static void main(String[] args) throws Exception {
 
        /*         
@@ -30,15 +31,29 @@ public class CittyTrafficProject {
         SparkSession spark = SparkSession.builder().appName("CittyTrafficProject").config("spark.master", "local").getOrCreate();
         //read the csv input file into a dataframe
         List<Dataset<Row>> list=new ArrayList<Dataset<Row>>();
-        File folder=new File(path);
-        if (folder == null){
-                
+        //System.out(pathP3);
+        File folder= null;
+        try {
+         folder = new File(pathP3);
+         System.out.println(folder.getName());
+        } catch (Exception e) {
+                System.err.println(e);
+        }
+        if(!folder.exists()){
+                System.out.println("FOLDER NULL");
+                return;
         } 
         System.out.println("name :"+folder.getName());
+        
         File[] listOfFiles = folder.listFiles();
+
+        if(listOfFiles == null){
+                System.out.println("PATH NULL");
+                return;
+        } 
         for (File file : listOfFiles) {
                 if(FilenameUtils.getExtension(file.getName()).equals("csv")){
-                        list.add(spark.read().option("header", true).option("inferSchema", true).csv(path+file.getName()));
+                        list.add(spark.read().option("header", true).option("inferSchema", true).csv(pathP3+file.getName()));
                         System.out.println(file.getName());
                 }
         }
@@ -85,5 +100,6 @@ public class CittyTrafficProject {
         // per_queue.show(20);
 
         System.out.println("done\n");
+        
 	}
 }
