@@ -16,7 +16,7 @@ import static org.apache.spark.sql.functions.expr;
 import static org.apache.spark.sql.functions.desc;
 
 public class CittyTrafficProject {
-        static String path="/Users/mcabi/Desktop/m2/ple/data/fichiersTraitBs/P3/";
+        static String pathP3="user/auber/data_ple/citytraffic/Premiers\\ résultats/Fichiers\\ traitВs/P3/";
 	public static void main(String[] args) throws Exception {
 
        /*         
@@ -31,6 +31,9 @@ public class CittyTrafficProject {
         //read the csv input file into a dataframe
         List<Dataset<Row>> list=new ArrayList<Dataset<Row>>();
         File folder=new File(path);
+        if (folder == null){
+                
+        } 
         System.out.println("name :"+folder.getName());
         File[] listOfFiles = folder.listFiles();
         for (File file : listOfFiles) {
