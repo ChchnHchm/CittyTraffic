@@ -17,7 +17,7 @@ import static org.apache.spark.sql.functions.expr;
 import static org.apache.spark.sql.functions.desc;
 
 public class CittyTrafficProject {
-        static String pathP3="/user/auber/data_ple/citytraffic/Premiers\\ résultats/Fichiers\\ traitВs/P3/Mixtra_EntrВe_Fac_1.csv";
+        static String pathP3="/user/auber/data_ple/citytraffic/Premiers\\ résultats/Fichiers\\ traitВs/P3/";
 	public static void main(String[] args) throws Exception {
 
        /*         
@@ -26,9 +26,11 @@ public class CittyTrafficProject {
         df.printSchema();
         df.write().format("sequenceFile");
         */
-        
         //spark initialization part
-        SparkSession spark = SparkSession.builder().appName("CittyTrafficProject").config("spark.master", "local").getOrCreate();
+        SparkSession spark = SparkSession.builder().appName("CittyTrafficProject").config("spark.master", "local").getOrCreate();     
+        Dataset<Row> df = spark.read().option("pathGlobFilter","*.csv").option("recursiveFileLookup","true").option("header","true").csv(pathP3);
+        df.show();
+        /*
         //read the csv input file into a dataframe
         List<Dataset<Row>> list=new ArrayList<Dataset<Row>>();
         //System.out(pathP3);
@@ -100,6 +102,6 @@ public class CittyTrafficProject {
         // per_queue.show(20);
 
         System.out.println("done\n");
-        
+        */
 	}
 }
