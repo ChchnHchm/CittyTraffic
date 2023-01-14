@@ -7,17 +7,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.spark.sql.SparkSession;
+import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
+import static org.apache.spark.sql.functions.input_file_name;
 import org.apache.commons.io.FilenameUtils;
 
 import static org.apache.spark.sql.functions.col;
+import static org.apache.spark.sql.functions.callUDF;
 import static org.apache.spark.sql.functions.avg;
 import static org.apache.spark.sql.functions.expr;
 import static org.apache.spark.sql.functions.desc;
 
 public class CittyTrafficProject {
-        static String pathP3="/user/auber/data_ple/citytraffic/Premiers\\ résultats/Fichiers\\ traitВs/P3/";
+        static String pathP3="C:/Users/mcabi/Desktop/m2/ple/CittyTraffic/data/fichiersTraitBs/P3/";
 	public static void main(String[] args) throws Exception {
 
        /*         
@@ -27,8 +30,18 @@ public class CittyTrafficProject {
         df.write().format("sequenceFile");
         */
         //spark initialization part
-        SparkSession spark = SparkSession.builder().appName("CittyTrafficProject").config("spark.master", "local").getOrCreate();     
+
+        
+        SparkSession spark = SparkSession.builder().appName("CittyTrafficProject").config("spark.master", "local").getOrCreate();
+
+        spark.udf().register("get_only_file_name", (String fullPath) -> {
+           int lastIndex = fullPath.lastIndexOf("/");
+           return fullPath.substring(lastIndex, fullPath.length() - 1);
+          }, DataTypes.StringType);
+      
+        
         Dataset<Row> df = spark.read().option("pathGlobFilter","*.csv").option("recursiveFileLookup","true").option("header","true").csv(pathP3);
+        df.withColumn("filename", callUDF("get_only_file_name",input_file_name())).show();
         df.show();
         /*
         //read the csv input file into a dataframe
