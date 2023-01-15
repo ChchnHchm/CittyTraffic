@@ -8,10 +8,16 @@ import java.util.List;
 
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.types.DataTypes;
+
+import scala.Function1;
+import scala.Tuple2;
+
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import static org.apache.spark.sql.functions.input_file_name;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.hadoop.fs.shell.Count;
+import org.apache.hadoop.io.NullWritable;
 
 import static org.apache.spark.sql.functions.col;
 import static org.apache.spark.sql.functions.callUDF;
@@ -20,9 +26,21 @@ import static org.apache.spark.sql.functions.expr;
 import static org.apache.spark.sql.functions.desc;
 
 public class CittyTrafficProject {
-        static String pathP3="/user/auber/data_ple/citytraffic/Premiers\\ résultats/Fichiers\\ traitВs/P3/";
-        //static String pathP3="C:/Users/mcabi/Desktop/m2/ple/CittyTraffic/data/fichiersTraitBs/P3/";
-	public static void main(String[] args) throws Exception {
+        static List<String> paths;
+        static String path="C:/Users/mcabi/Desktop/m2/ple/CittyTraffic/data/fichiersTraitBs";
+        // static String pathP3="/user/auber/data_ple/citytraffic/Premiers\\ résultats/Fichiers\\ traitВs/P3/";
+
+        static private void initPaths(){
+                paths=new ArrayList<String>();
+                paths.add("/P9/");
+                paths.add("/P19/");
+                paths.add("/P23/");
+                paths.add("/P24/");
+                paths.add("/P26/");
+
+
+        }
+        public static void main(String[] args) throws Exception {
 
        /*         
         Dataset<Row> df = spark.read().option("header", true).option("inferSchema", true).csv("/user/auber/data_ple/citytraffic/Data_tube_example.csv");
@@ -31,18 +49,46 @@ public class CittyTrafficProject {
         df.write().format("sequenceFile");
         */
         //spark initialization part
+        initPaths();
+        SparkSession spark = SparkSession.builder().appName("CittyTrafficProject").config("spark.master", "local").getOrCreate();
+        spark.udf().register("get_only_file_name", (String fullPath) -> {
+                if(fullPath.contains("Sortie")){
+                     return 2;
+                }
+                else{
+                     return 1;
+                }
+        }, DataTypes.IntegerType);
+        for (String currPath : paths) {
+                Dataset<Row> df = spark.read().option("pathGlobFilter","*.csv").option("recursiveFileLookup","true").option("header","true").csv(path+currPath);
+                df=df.withColumn("Sens", callUDF("get_only_file_name",input_file_name()));
+                long totalCount=df.count();
+                for (String name : df.schema().names()) {
+                        System.out.println(name);
+                        if(name.equals("Type Véhicules") || name.equals("Type Véhicule")){
+                                df=df.withColumnRenamed(name,"Véhicule");
+                                name="Véhicule";
+                        }
+                        long nb=df.filter(df.col(name).isNull()).count();
+                        if((double)nb/totalCount>0.5){
+                                df=df.drop(df.col(name));
+                        }
+                                
+        
+                } 
+                System.out.println();
+                df.write().parquet(path+"/../result"+currPath);   
+        }
+        
+        Dataset<Row> df=spark.read().option("recursiveFileLookup","true").option("header","true").parquet(path+"/../result/");
+        df.show();
+        
 
         
-        SparkSession spark = SparkSession.builder().appName("CittyTrafficProject").config("spark.master", "local").getOrCreate();
-
-        spark.udf().register("get_only_file_name", (String fullPath) -> {
-           int lastIndex = fullPath.lastIndexOf("/");
-           return fullPath.substring(lastIndex, fullPath.length() - 1);
-          }, DataTypes.StringType);
+       
       
         
-        Dataset<Row> df = spark.read().option("pathGlobFilter","*.csv").option("recursiveFileLookup","true").option("header","true").csv(pathP3);
-        df.withColumn("filename", callUDF("get_only_file_name",input_file_name())).show();
+        
         /*
         //read the csv input file into a dataframe
         List<Dataset<Row>> list=new ArrayList<Dataset<Row>>();
