@@ -34,7 +34,7 @@ import static org.apache.spark.sql.functions.desc;
 
 public class CittyTrafficProject {
         static List<String> paths;
-        static String path="C:/Users/mcabi/Desktop/m2/ple/CittyTraffic/data/fichiersTraitBs";
+        static String path="C:/Users/mcabi/Desktop/m2/ple/CittyTraffic/data/brute";
         // static String pathP3="/user/auber/data_ple/citytraffic/Premiers\\ résultats/Fichiers\\ traitВs/P3/";
 
         static private void initPaths(){
@@ -88,57 +88,57 @@ public class CittyTrafficProject {
     
 
         }, DataTypes.StringType);
-        // for (String currPath : paths) {
-        //         Dataset<Row> df = spark.read().option("pathGlobFilter","*.csv").option("recursiveFileLookup","true").option("header","true").csv(path+"/"+currPath+"/");
-        //         long totalCount=df.count();
-        //         Boolean sensExist=false;
-        //         for (String name : df.schema().names()) {
-        //                 long nb=df.filter(df.col(name).isNull()).count();
-        //                 if((double)nb/totalCount>0.5){
-        //                         df=df.drop(df.col(name));
-        //                 }
-        //                 if(name.equals("HEURE/MINUTE")){
-        //                         df=df.withColumn("HEURE", callUDF("separateTimeFirst",col(name)));
-        //                         df=df.withColumn("MINUTE", callUDF("separateTimeSecond",col(name)));
-        //                         df=df.drop(name);
-        //                 }
-        //                 if(name.equals("SECONDE/CENTIEME")){
-        //                         df=df.withColumn("SECONDE", callUDF("separateTimeFirst",col(name)));
-        //                         df=df.withColumn("CENTIEME", callUDF("separateTimeSecond",col(name)));
-        //                         df=df.drop(name);
-        //                 }
-        //                 else if(name.equals("Type Véhicules") || name.equals("Type Véhicule") ){
-        //                         df=df.withColumnRenamed(name,"TYPE");
-        //                 }
-        //                 else{
-        //                         String newName=StringUtils.stripAccents(name);
-        //                         newName=newName.toUpperCase();
-        //                         df=df.withColumnRenamed(name,newName);
-        //                         name=newName;
-        //                 }
-        //                 if(name.equals("CATEGORIE")){
-        //                         df=df.drop(name);
-        //                 }
-        //                 else if(name.equals("INTER-ESSIEUX")){
-        //                         df=df.withColumnRenamed(name, "SER");
-        //                 }
-        //                 else if(name.equals("SENS")){
-        //                         if(df.select(name).first().get(0).getClass().equals(String.class)){
-        //                                 df=df.withColumn("SENS", callUDF("get_only_file_name",col(name)));
-        //                         }
-        //                         sensExist=true;
-        //                 }
-        //         }
-        //         if(!sensExist){
-        //                 df=df.withColumn("SENS", callUDF("get_only_file_name",input_file_name()));
+        for (String currPath : paths) {
+                Dataset<Row> df = spark.read().option("pathGlobFilter","*.csv").option("recursiveFileLookup","true").option("header","true").csv(path+"/"+currPath+"/");
+                long totalCount=df.count();
+                Boolean sensExist=false;
+                for (String name : df.schema().names()) {
+                        long nb=df.filter(df.col(name).isNull()).count();
+                        if((double)nb/totalCount>0.5){
+                                df=df.drop(df.col(name));
+                        }
+                        if(name.equals("HEURE/MINUTE")){
+                                df=df.withColumn("HEURE", callUDF("separateTimeFirst",col(name)));
+                                df=df.withColumn("MINUTE", callUDF("separateTimeSecond",col(name)));
+                                df=df.drop(name);
+                        }
+                        if(name.equals("SECONDE/CENTIEME")){
+                                df=df.withColumn("SECONDE", callUDF("separateTimeFirst",col(name)));
+                                df=df.withColumn("CENTIEME", callUDF("separateTimeSecond",col(name)));
+                                df=df.drop(name);
+                        }
+                        else if(name.equals("Type Véhicules") || name.equals("Type Véhicule") ){
+                                df=df.withColumnRenamed(name,"TYPE");
+                        }
+                        else{
+                                String newName=StringUtils.stripAccents(name);
+                                newName=newName.toUpperCase();
+                                df=df.withColumnRenamed(name,newName);
+                                name=newName;
+                        }
+                        if(name.equals("CATEGORIE")){
+                                df=df.drop(name);
+                        }
+                        else if(name.equals("INTER-ESSIEUX")){
+                                df=df.withColumnRenamed(name, "SER");
+                        }
+                        else if(name.equals("SENS")){
+                                if(df.select(name).first().get(0).getClass().equals(String.class)){
+                                        df=df.withColumn("SENS", callUDF("get_only_file_name",col(name)));
+                                }
+                                sensExist=true;
+                        }
+                }
+                if(!sensExist){
+                        df=df.withColumn("SENS", callUDF("get_only_file_name",input_file_name()));
 
-        //         }
-        //         df=df.withColumn("RADAR", functions.lit(currPath));
-        //         df.write().mode(SaveMode.Overwrite).option("header",true).parquet(path+"/../result/"+currPath+"/");   
-        // }
+                }
+                df=df.withColumn("RADAR", functions.lit(currPath));
+                df.write().mode(SaveMode.Overwrite).option("header",true).parquet(path+"/../result/"+currPath+"/");   
+        }
         
-        Dataset<Row> df=spark.read().option("recursiveFileLookup","true").option("header","true").parquet(path+"/../result/SUPER");
-        df.show();
+        Dataset<Row> df=spark.read().option("recursiveFileLookup","true").option("header","true").parquet(path+"/../result");
+       
         List<String> list=df.select("radar").distinct().as(Encoders.STRING()).collectAsList();
         List<Long> coutnList=new ArrayList<Long>();
         for (String s : list) {
@@ -152,7 +152,8 @@ public class CittyTrafficProject {
                 i++;
 
         }
-        // df.write().mode(SaveMode.Overwrite).option("header",true).parquet(path+"/../result/SUPER");
+        df.show();
+        df.write().mode(SaveMode.Overwrite).option("header",true).parquet(path+"/../result/SUPER");
         
        
       
