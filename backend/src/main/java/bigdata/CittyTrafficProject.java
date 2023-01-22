@@ -39,22 +39,24 @@ public class CittyTrafficProject {
 
         static private void initPaths(){
                 paths=new ArrayList<String>();
-                //VIKINGS
-                paths.add("P4");
-                paths.add("P5");
-                paths.add("P17");
-                //MIXTRA
-                paths.add("P9");
-                paths.add("P19");
-                paths.add("P23");
-                paths.add("P24");
-                paths.add("P26");
-                //CAMERA
-                paths.add("P1");
-                paths.add("P10");
-                paths.add("P12");
-                paths.add("P13");
-                paths.add("P20");
+                // //VIKINGS
+                // paths.add("P4");
+                // paths.add("P5");
+                // paths.add("P17");
+                // //MIXTRA
+                // paths.add("P9");
+                // paths.add("P19");
+                // paths.add("P23");
+                // paths.add("P24");
+                // paths.add("P26");
+                // //CAMERA
+                // paths.add("P1");
+                // paths.add("P10");
+                // paths.add("P12");
+                // paths.add("P13");
+                // paths.add("P20");
+
+                paths.add("P2");
 
 
         }
@@ -70,7 +72,7 @@ public class CittyTrafficProject {
         initPaths();
         SparkSession spark = SparkSession.builder().appName("CittyTrafficProject").config("spark.master", "local").getOrCreate();
         spark.udf().register("get_only_file_name", (String fullPath) -> {
-                if(fullPath.contains("Sortie") || fullPath.contains("Talence") || fullPath.contains("Talence") || fullPath.contains("S")){
+                if(fullPath.contains("Sortie") || fullPath.contains("Talence") || fullPath.contains("Talence") || fullPath.contains("S") || fullPath.contains("2")){
                      return 2;
                 }
                 else{
@@ -122,12 +124,42 @@ public class CittyTrafficProject {
 
         }, DataTypes.StringType);
 
+        spark.udf().register("horodateToHour", (String time) -> {
+                try{
+                        return time.split(" ")[1];
+
+
+                }catch(IndexOutOfBoundsException e){
+                        return "00";
+                }
+                
+    
+
+        }, DataTypes.StringType);
+
+        spark.udf().register("speedClean", (String time) -> {
+                try{
+                        return time.replace("V=", "");
+
+
+                }catch(IndexOutOfBoundsException e){
+                        return "00";
+                }
+                
+    
+
+        }, DataTypes.StringType);
+
+        Dataset<Row> dfFinal = spark.emptyDataFrame();
+
         for (String currPath : paths) {
                 Dataset<Row> df = spark.read().option("pathGlobFilter","*.csv").option("recursiveFileLookup","true").option("header","true").csv(path+"/"+currPath+"/");
                 long totalCount=df.count();
                 Boolean sensExist=false;
                 Boolean sensIsVers=false;
                 Boolean typeExist=false;
+                Boolean vitesseExist=false;
+                df.show();
                 for (String name : df.schema().names()) {
 
                         //enléve les accents et mets toute les noms de colonnes en majuscules
@@ -138,16 +170,17 @@ public class CittyTrafficProject {
                         name=newName;
 
                          //Gestion de la direction
-                        if(name.contains("VERS ")){
+                        if(name.contains("VERS ") || name.contains("ENTRANT")){
                                 if(!sensIsVers){
                                         sensIsVers=true;
                                         sensExist=true;
-                                        df=df.withColumn("SENS",functions.when(df.col(name).isNotNull(),1).when(df.col(name).isNull(), 1) );
+                                        df=df.withColumn("SENS",functions.when(df.col(name).isNotNull(),1).when(df.col(name).isNull(), 2) );
                                 }
                                df= df.drop(name);
                                
 
                         }
+                        
                         else if(name.contains("DETECTION ")){
                                 if(!sensIsVers){
                                         sensIsVers=true;
@@ -181,7 +214,7 @@ public class CittyTrafficProject {
                         }
                         else if(name.equals("SECONDE")){
                                 df=df.withColumn("TEMPS", functions.concat(col("TEMPS"),functions.concat(functions.lit(":"),col(name))));
-                                
+                                df=df.drop(name);
                         }
 
                         else if(name.equals("HEURE/MINUTE")){
@@ -197,7 +230,11 @@ public class CittyTrafficProject {
                                 name=null;
 
                         }
-
+                        //Si la vitesse existe on ajoute 
+                        else if(name.equals("VITESSE")){
+                              vitesseExist=true;
+                              df=df.withColumn(name, callUDF("speedClean",col(name)));
+                        }
                         //Gestion du type de vehicule
                         else if(name.equals("TYPE VEHICULES") || name.equals("TYPE VEHICULE") || (name.equals("CATEGORIE")&& !typeExist ) ){
                                 df=df.withColumnRenamed(name,"TYPE");
@@ -205,15 +242,11 @@ public class CittyTrafficProject {
                                 typeExist=true;
                         }
                        
-                        else if(name.equals("CATEGORIE")  || name.equals("CENTIEME") || name.equals("ID")){
+                        else if(name.equals("CATEGORIE")  || name.equals("CENTIEME") || name.equals("ID") || name.equals("SER") ||name.equals("INTER-ESSIEUX")){
                                 df=df.drop(name);
                                 name=null;
                         }
-                        else if(name.equals("INTER-ESSIEUX")){
-                                df=df.withColumnRenamed(name, "SER");
-                                name="SER";
 
-                        }
 
                         
                         else{
@@ -230,16 +263,24 @@ public class CittyTrafficProject {
                         df=df.withColumn("SENS", callUDF("get_only_file_name",input_file_name()));
 
                 }
-                
                 df=df.withColumn("RADAR", functions.lit(currPath));
-                df.write().mode(SaveMode.Overwrite).option("header",true).parquet(path+"/../result/"+currPath+"/");   
+                if(!vitesseExist){
+                        df=df.withColumn("VITESSE", functions.lit(null));
+                }
+
+
+                if(dfFinal.isEmpty()){
+                        dfFinal=df;
+                }
+                else{
+                        dfFinal=dfFinal.unionByName(df);
+                }
         }
-        Dataset<Row> df=spark.read().option("recursiveFileLookup","true").option("header","true").parquet(path+"/../result");
-       
-        List<String> list=df.select("RADAR").distinct().as(Encoders.STRING()).collectAsList();
+       dfFinal.show();
+        List<String> list=dfFinal.select("RADAR").distinct().as(Encoders.STRING()).collectAsList();
         List<Long> coutnList=new ArrayList<Long>();
         for (String s : list) {
-               coutnList.add(df.filter(col("RADAR").$eq$eq$eq(s)).count());
+               coutnList.add(dfFinal.filter(col("RADAR").$eq$eq$eq(s)).count());
                 
         }
         int i=0;
@@ -249,8 +290,8 @@ public class CittyTrafficProject {
                 i++;
 
         }
-        df.filter(col("RADAR").$eq$eq$eq("P1")).show();
-        df.write().mode(SaveMode.Overwrite).option("header",true).parquet(path+"/../SUPER");
+
+        dfFinal.show();        // dfFinal.write().mode(SaveMode.Overwrite).option("header",true).parquet(path+"/../SUPER");
         
        
       
