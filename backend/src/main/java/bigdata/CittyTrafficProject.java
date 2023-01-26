@@ -1,8 +1,5 @@
 package bigdata;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,27 +7,25 @@ import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.functions;
 import org.apache.spark.sql.types.DataTypes;
 
-import com.ctc.wstx.util.StringUtil;
 
-import scala.Function1;
 import scala.Tuple2;
 
+import org.apache.spark.SparkConf;
+import org.apache.spark.api.java.JavaPairRDD;
+import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Encoders;
 import org.apache.spark.sql.Row;
-import org.apache.spark.sql.SaveMode;
 
 import static org.apache.spark.sql.functions.input_file_name;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.hadoop.fs.shell.Count;
 import org.apache.hadoop.io.NullWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapred.SequenceFileOutputFormat;
 
 import static org.apache.spark.sql.functions.col;
 import static org.apache.spark.sql.functions.callUDF;
-import static org.apache.spark.sql.functions.avg;
-import static org.apache.spark.sql.functions.expr;
-import static org.apache.spark.sql.functions.desc;
+
 
 public class CittyTrafficProject {
         static List<String> paths;
@@ -39,8 +34,8 @@ public class CittyTrafficProject {
 
         static private void initPaths(){
                 paths=new ArrayList<String>();
-                // //VIKINGS
-                // paths.add("P4");
+                //VIKINGS
+                paths.add("P4");
                 // paths.add("P5");
                 // paths.add("P17");
                 // //MIXTRA
@@ -54,10 +49,6 @@ public class CittyTrafficProject {
                 // paths.add("P10");
                 // paths.add("P12");
                 // paths.add("P13");
-                // paths.add("P20");
-
-                paths.add("P2");
-
 
         }
         public static void main(String[] args) throws Exception {
@@ -70,6 +61,7 @@ public class CittyTrafficProject {
         */
         //spark initialization part
         initPaths();
+        
         SparkSession spark = SparkSession.builder().appName("CittyTrafficProject").config("spark.master", "local").getOrCreate();
         spark.udf().register("get_only_file_name", (String fullPath) -> {
                 if(fullPath.contains("Sortie") || fullPath.contains("Talence") || fullPath.contains("Talence") || fullPath.contains("S") || fullPath.contains("2")){
@@ -126,7 +118,7 @@ public class CittyTrafficProject {
 
         spark.udf().register("horodateToHour", (String time) -> {
                 try{
-                        return time.split(" ")[1];
+                        return time.split(" ")[1].split(":")[0]+time.split(":")[1];
 
 
                 }catch(IndexOutOfBoundsException e){
@@ -213,7 +205,6 @@ public class CittyTrafficProject {
 
                         }
                         else if(name.equals("SECONDE")){
-                                df=df.withColumn("TEMPS", functions.concat(col("TEMPS"),functions.concat(functions.lit(":"),col(name))));
                                 df=df.drop(name);
                         }
 
@@ -225,7 +216,6 @@ public class CittyTrafficProject {
                         }
                        
                         else if(name.equals("SECONDE/CENTIEME")){
-                                df=df.withColumn("TEMPS", functions.concat(col("TEMPS"),callUDF("getSecond",col(name))));
                                 df=df.drop(name);
                                 name=null;
 
@@ -291,12 +281,13 @@ public class CittyTrafficProject {
 
         }
 
-        dfFinal.show();        // dfFinal.write().mode(SaveMode.Overwrite).option("header",true).parquet(path+"/../SUPER");
-        
-       
-      
-        
-        
+        JavaPairRDD<NullWritable, Text> rddFinal =dfFinal.toJavaRDD().mapToPair(row ->new Tuple2<NullWritable,Text>(NullWritable.get(),new Text(row.toString())));
+        rddFinal.saveAsHadoopFile(path+"/../result", NullWritable.class, Text.class, SequenceFileOutputFormat.class);
+
+       JavaSparkContext sc =new JavaSparkContext(spark.sparkContext());
+       JavaPairRDD<NullWritable, Text> rddText= sc.sequenceFile(path+"/../result", NullWritable.class, Text.class);
+       JavaPairRDD<NullWritable,String> rddString=rddText.mapValues(tuple-> tuple.toString());
+       System.out.println(       rddString.take(20).size());
         /*
         //read the csv input file into a dataframe
         List<Dataset<Row>> list=new ArrayList<Dataset<Row>>();
