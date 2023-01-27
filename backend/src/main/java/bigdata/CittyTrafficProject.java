@@ -3,6 +3,8 @@ package bigdata;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.validation.constraints.Null;
+
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.functions;
 import org.apache.spark.sql.types.DataTypes;
@@ -16,6 +18,7 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Encoders;
 import org.apache.spark.sql.Row;
+import org.apache.spark.api.java.JavaRDD;
 
 import static org.apache.spark.sql.functions.input_file_name;
 import org.apache.commons.lang3.StringUtils;
@@ -29,8 +32,9 @@ import static org.apache.spark.sql.functions.callUDF;
 
 public class CittyTrafficProject {
         static List<String> paths;
-        static String path="C:/Users/mcabi/Desktop/m2/ple/CittyTraffic/data/brute";
-        // static String pathP3="/user/auber/data_ple/citytraffic/Premiers\\ résultats/Fichiers\\ traitВs/P3/";
+        // static String path="C:/Users/mcabi/Desktop/m2/ple/CittyTraffic/data/brute";
+        static String path="/user/auber/data_ple/citytraffic/ResultatCSV";
+        static String pathResult="/user/nalves/cittyTrafic/Result";
 
         static private void initPaths(){
                 paths=new ArrayList<String>();
@@ -282,12 +286,15 @@ public class CittyTrafficProject {
         }
 
         JavaPairRDD<NullWritable, Text> rddFinal =dfFinal.toJavaRDD().mapToPair(row ->new Tuple2<NullWritable,Text>(NullWritable.get(),new Text(row.toString())));
-        rddFinal.saveAsHadoopFile(path+"/../result", NullWritable.class, Text.class, SequenceFileOutputFormat.class);
+        rddFinal.saveAsHadoopFile(pathResult, NullWritable.class, Text.class, SequenceFileOutputFormat.class);
 
        JavaSparkContext sc =new JavaSparkContext(spark.sparkContext());
-       JavaPairRDD<NullWritable, Text> rddText= sc.sequenceFile(path+"/../result", NullWritable.class, Text.class);
-       JavaPairRDD<NullWritable,String> rddString=rddText.mapValues(tuple-> tuple.toString());
-       System.out.println(       rddString.take(20).size());
+       JavaPairRDD<NullWritable, Text> rddWritable= sc.sequenceFile(pathResult, NullWritable.class, Text.class);
+       
+       JavaRDD<String> rddString=rddWritable.mapValues(tuple-> tuple.toString()).values();
+       
+       rddString.take(20).forEach(t->System.out.println(t));
+       
         /*
         //read the csv input file into a dataframe
         List<Dataset<Row>> list=new ArrayList<Dataset<Row>>();
