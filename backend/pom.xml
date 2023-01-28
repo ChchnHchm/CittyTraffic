@@ -7,9 +7,9 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 	</properties>
   <groupId>bigdata</groupId>
-  <artifactId>CittyTrafficProject</artifactId>
+  <artifactId>CittyTraffic</artifactId>
   <version>0.0.1</version>
-  <name>CittyTrafficProject</name>
+  <name>CittyTraffic</name>
 
 
   <dependencies>
@@ -36,13 +36,42 @@
   			<groupId>org.apache.maven.plugins</groupId>
   			<artifactId>maven-jar-plugin</artifactId>
   			<version>3.0.0</version>
-  			<configuration>
-  				<archive>
-  					<manifest>
-  						<mainClass>bigdata.CittyTrafficProject</mainClass>
-  					</manifest>
-  				</archive>
-  			</configuration>
+
+			<executions>
+				<execution>
+					<id>Cleaner</id>
+					<goals>
+            			<goal>jar</goal>
+          			</goals>
+					<configuration>
+						<classifier>CittyTrafficCleaner</classifier>
+						<finalName>${project.artifactId}-Cleaner</finalName>
+  						<archive>
+  							<manifest>
+  								<mainClass>bigdata.CittyTrafficCleaner</mainClass>
+  							</manifest>
+  						</archive>
+  					</configuration>
+				</execution>
+
+				<execution>
+					<id>Data</id>
+					<goals>
+            			<goal>jar</goal>
+          			</goals>
+					<configuration>
+						<classifier>CittyTrafficData</classifier>
+						<finalName>${project.artifactId}-Data</finalName>
+  						<archive>
+  							<manifest>
+  								<mainClass>bigdata.CittyTrafficData</mainClass>
+  							</manifest>
+  						</archive>
+  					</configuration>
+				</execution>
+
+			</executions>
+  			
   		</plugin>
   	</plugins>
   </build>
