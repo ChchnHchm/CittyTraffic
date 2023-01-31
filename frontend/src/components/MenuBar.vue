@@ -34,13 +34,14 @@ export default {
 </script>
 <style scoped>
 #headerBar{
+  display: flex;
   width: 100vw;
   justify-content: space-between;
-  background-color: #6C7293;
+  background-color: #191C24;
   white-space: nowrap;
   align-items: center;
   border-block-width: 1px;
-    border-color: grey;
+  border-color: grey;
 }
 #logoBar{
        padding:10px; 

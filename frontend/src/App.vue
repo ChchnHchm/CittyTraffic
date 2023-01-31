@@ -4,12 +4,18 @@ import HelloWorld from "./components/HelloWorld.vue";
 import Map from '@/components/Map.vue';
 import menuBar from "@/components/MenuBar.vue";
 import infoCard from "@/components/infoCard.vue";
+import timeRange from  "@/components/timeRange.vue";
+import datepicker from "@/components/datePicker.vue";
 </script>
 
 <template >
 <link href="/dist/output.css" rel="stylesheet">
 <div id="app">
   <menuBar />
+  <div id="options">
+    <datepicker />
+    <timeRange />
+  </div>
   <div id="containerData" >
     <Map />
     <infoCard />
@@ -20,6 +26,7 @@ import infoCard from "@/components/infoCard.vue";
 <style >
 html.dark{
   color-scheme: dark;
+  background-color: #000000;
 }
 #app{
   display: grid;
@@ -37,6 +44,14 @@ html.dark{
   padding-top: 2%;
   border: none;
   margin-top: 2%;
-} 
+}
+#options{
+  display: flex;
+  padding-top: 2%;
+  margin-top: 2%;
+  justify-content: space-evenly;
+  background-color: #191C24;
+  align-items: center;
+}  
 
 </style>
