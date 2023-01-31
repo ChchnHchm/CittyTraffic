@@ -63,15 +63,25 @@ public class CittyTrafficCleaner {
         SparkSession spark = SparkSession.builder().appName("CittyTrafficProject").config("spark.master", "local").getOrCreate();
         spark.udf().register("get_only_file_name", (String fullPath) -> {
                 if(fullPath.contains("Sortie") || fullPath.contains("Talence") || fullPath.contains("Talence") || fullPath.contains("S") || fullPath.contains("2")){
-                     return 2;
+                     return "2";
                 }
                 else{
-                     return 1;
+                     return "1";
                 }
-        }, DataTypes.IntegerType);
-        spark.udf().register("changeFormat", (String time) -> {
+        }, DataTypes.StringType);
+        spark.udf().register("changeFormatHour", (String time) -> {
                 try{
-                        return time.substring(0,time.length()-2)+":"+time.substring(time.length()-2);
+                        return time.substring(0,time.length()-2);
+
+                }catch(IndexOutOfBoundsException e){
+                        return "00";
+                }
+                
+        }, DataTypes.StringType);
+
+        spark.udf().register("changeFormatMinute", (String time) -> {
+                try{
+                        return time.substring(time.length()-2);
 
                 }catch(IndexOutOfBoundsException e){
                         return "00";
@@ -91,19 +101,20 @@ public class CittyTrafficCleaner {
 
         spark.udf().register("horodateToDay", (String time) -> {
                 try{
-                        return time.split(" ")[0];
+                        return time.split(" ")[0].replace("/","-");
 
                 }catch(IndexOutOfBoundsException e){
-                        return "0/0/0";
+                        return "2022-1-1";
                 }
                 
     
 
         }, DataTypes.StringType);
+
 
         spark.udf().register("horodateToHour", (String time) -> {
                 try{
-                        return time.split(" ")[1];
+                        return time.split(" ")[1].split(":")[0];
 
 
                 }catch(IndexOutOfBoundsException e){
@@ -114,9 +125,9 @@ public class CittyTrafficCleaner {
 
         }, DataTypes.StringType);
 
-        spark.udf().register("horodateToHour", (String time) -> {
+        spark.udf().register("horodateToMinute", (String time) -> {
                 try{
-                        return time.split(" ")[1].split(":")[0]+time.split(":")[1];
+                        return time.split(" ")[1].split(":")[1];
 
 
                 }catch(IndexOutOfBoundsException e){
@@ -127,17 +138,68 @@ public class CittyTrafficCleaner {
 
         }, DataTypes.StringType);
 
-        spark.udf().register("speedClean", (String time) -> {
-                try{
-                        return time.replace("V=", "");
+        spark.udf().register("speedClean", (String speed) -> {
+                        return speed.replace("V=", "");
+        }, DataTypes.StringType);
 
+        spark.udf().register("changeDateFormat", (String time) -> {
+                        if(time.contains("/")){
+                                try{
+                                        String[] listDate=time.split("/");
+                                        return "20"+listDate[2]+"-"+listDate[1]+"-"+listDate[0];
+                                }catch(IndexOutOfBoundsException e){
+                                        return "2022-1-1";
+                                }
+                        }
+                        else{
+                                return "2022-10-"+time;
+                        }
+
+
+                
+        }, DataTypes.StringType);
+
+        spark.udf().register("heureMinuteToHeure", (String time) -> {
+                try{
+                        return time.split(":")[0];
 
                 }catch(IndexOutOfBoundsException e){
                         return "00";
                 }
                 
-    
+        }, DataTypes.StringType);
 
+        spark.udf().register("heureMinuteToMinute", (String time) -> {
+                try{
+                        return time.split(":")[1];
+
+                }catch(IndexOutOfBoundsException e){
+                        return "00";
+                }
+                
+        }, DataTypes.StringType);
+
+        spark.udf().register("typeUnification", (String time) -> {
+                //Velo ou trottinette
+                if(time.equals("VELO") || time.equals("Vélo")||time.equals("Trottinette")||time.equals("V�lo �lectrique")||time.equals("EDPM")||time.equals("V�lo Electrique")){
+                        return "VELO";
+                }
+                else if(time.equals("PL")||time.equals("PL_2")||time.equals("PL_1")){
+                        return "PL";
+                }
+                else if(time.equals("VL")){
+                        return "VL";
+                }
+                else if(time.equals("MOTO")||time.equals("2RM")||time.equals("2R")){
+                        return "2R";
+                }
+                else if(time.equals("PL/Bus") || time.equals("BUS")||time.equals("Bus articul�")||time.equals("Bus ")||time.equals("Bus")){
+                        return "BUS";
+                }
+                else if(time.equals("UT")){
+                        return "UT";
+                }
+                return "INCONNU";
         }, DataTypes.StringType);
 
         Dataset<Row> dfFinal = spark.emptyDataFrame();
@@ -177,8 +239,6 @@ public class CittyTrafficCleaner {
                                         df=df.withColumn("SENS",callUDF("get_only_file_name",col(name)));
                                 }
                                df= df.drop(name);
-                               
-
                         }
                         else if(name.equals("SENS")){
                                 if(df.select(name).first().get(0).getClass().equals(String.class)){
@@ -190,15 +250,21 @@ public class CittyTrafficCleaner {
                         //Gestion de la date et du temps
                         else if(name.equals("HORODATE")){
                                 df=df.withColumn("JOUR", callUDF("horodateToDay",col(name)));
-                                df=df.withColumn("TEMPS", callUDF("horodateToHour",col(name)));
+                                df=df.withColumn("HEURE", callUDF("horodateToHour",col(name)));
+                                df=df.withColumn("MINUTE", callUDF("horodateToMinute",col(name)));
+
 
                                 df=df.drop(name);
-                                name=null;
                                 
                                 
                         }
+                        else if(name.equals("JOUR")){
+                                df=df.withColumn("JOUR", callUDF("changeDateFormat",col(name)));
+
+                        }
                         else if(name.equals("HEURE")){
-                                df=df.withColumnRenamed(name, "TEMPS");
+                                df=df.withColumn("MINUTE", callUDF("heureMinuteToMinute",col(name)));
+                                df=df.withColumn("HEURE", callUDF("heureMinuteToHeure",col(name)));
 
                         }
                         else if(name.equals("SECONDE")){
@@ -206,15 +272,14 @@ public class CittyTrafficCleaner {
                         }
 
                         else if(name.equals("HEURE/MINUTE")){
-                                df=df.withColumn("TEMPS", callUDF("changeFormat",col(name)));
+                                df=df.withColumn("MINUTE", callUDF("changeFormatMinute",col(name)));
+                                df=df.withColumn("HEURE", callUDF("changeFormatHour",col(name)));
                                 df=df.drop(name);
-                                name=null;
 
                         }
                        
                         else if(name.equals("SECONDE/CENTIEME")){
                                 df=df.drop(name);
-                                name=null;
 
                         }
                         //Si la vitesse existe on ajoute 
@@ -231,7 +296,6 @@ public class CittyTrafficCleaner {
                        
                         else if(name.equals("CATEGORIE")  || name.equals("CENTIEME") || name.equals("ID") || name.equals("SER") ||name.equals("INTER-ESSIEUX")){
                                 df=df.drop(name);
-                                name=null;
                         }
 
 
@@ -240,7 +304,6 @@ public class CittyTrafficCleaner {
                                 long nb=df.filter(df.col(name).isNull()).count();
                                 if((double)nb/totalCount>0.5){
                                         df=df.drop(df.col(name));
-                                        name=null;
 
                                 }
                         }
@@ -250,12 +313,13 @@ public class CittyTrafficCleaner {
                         df=df.withColumn("SENS", callUDF("get_only_file_name",input_file_name()));
 
                 }
+                df=df.withColumn("TYPE", callUDF("typeUnification", df.col("TYPE")));
+
                 df=df.withColumn("RADAR", functions.lit(currPath));
                 if(!vitesseExist){
                         df=df.withColumn("VITESSE", functions.lit(null));
                 }
-
-
+                df.show();
                 if(dfFinal.isEmpty()){
                         dfFinal=df;
                 }
@@ -263,29 +327,11 @@ public class CittyTrafficCleaner {
                         dfFinal=dfFinal.unionByName(df);
                 }
         }
-        List<String> list=dfFinal.select("RADAR").distinct().as(Encoders.STRING()).collectAsList();
-        List<Long> coutnList=new ArrayList<Long>();
-        for (String s : list) {
-               coutnList.add(dfFinal.filter(col("RADAR").$eq$eq$eq(s)).count());
-                
-        }
-        int i=0;
-        for (Long long1 : coutnList) {
-
-                System.out.println(list.get(i)+" "+long1);
-                i++;
-
-        }
-
-        JavaPairRDD<NullWritable, Text> rddFinal =dfFinal.toJavaRDD().mapToPair(row ->new Tuple2<NullWritable,Text>(NullWritable.get(),new Text(row.toString())));
-        rddFinal.saveAsHadoopFile(pathResult, NullWritable.class, Text.class, SequenceFileOutputFormat.class);
-
-       JavaSparkContext sc =new JavaSparkContext(spark.sparkContext());
-       JavaPairRDD<NullWritable, Text> rddWritable= sc.sequenceFile(pathResult, NullWritable.class, Text.class);
-
-       JavaRDD<String> rddString=rddWritable.mapValues(text-> text.toString()).values();
+        dfFinal=dfFinal.select(col("JOUR"),col("HEURE"),col("MINUTE"),col("TYPE"),col("VITESSE"),col("SENS"),col("RADAR"));
+        dfFinal.show();
+        JavaPairRDD<Text, Text> rddFinal =dfFinal.toJavaRDD().mapToPair(row ->new Tuple2<Text,Text>(new Text(row.getString(0)+","+row.getString(1)+","+row.getString(3)+","+row.getString(6)),new Text(row.getString(4)+","+row.getString(5))));
+        rddFinal.saveAsHadoopFile(pathResult, Text.class, Text.class, SequenceFileOutputFormat.class);
        
-       rddString.take(20).forEach(t->System.out.println(t));
         
         
 	}
