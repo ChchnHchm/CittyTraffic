@@ -37,33 +37,35 @@ import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
-import org.apache.hadoop.hbase.client.HTable;
 
-public static class CittyTrafficHbase extends Configured implements Tool {
-        private static final List<byte[]> FAMILYS = {Bytes.toBytes("key"),Bytes.toBytes("type"),Bytes.toBytes("direction"),Bytes.toBytes("measure")}; 
+public class CittyTrafficHbase extends Configured {
+        private static final String[]  FAMILYS = {"key","type","direction","measure"}; 
 		private static final byte[] TABLE_NAME = Bytes.toBytes("hchouchane:CittyTrafficHbase");
-		private HTable htable;
+		private Configuration conf;
+		private Connection connect;
+		private Table table;
 
 
 		public CittyTrafficHbase(){
 			try{
 				//Instantiating conf
-				Configuration con = HBaseConfiguration.create();
+				this.conf = HBaseConfiguration.create();
 
 				//Instantiating admin class
 				//HBaseAdmin admin = new HBaseAdmin(con);
-				final Admin admin = connect.getAdmin();
+				this.connect = ConnectionFactory.createConnection(getConf());
+				final Admin admin = this.connect.getAdmin();
 
 				//Instantiating table descriptor
 				HTableDescriptor tableDescriptor = new HTableDescriptor(TableName.valueOf(TABLE_NAME));
 
 				//Instantiating colum families
-				FAMILYS.forEach(element -> {
-					tableDescriptor.addFamily(new HColumnDescriptor(element));
-				});
+				for(int i = 0 ; i < FAMILYS.length ; i++){
+					tableDescriptor.addFamily(new HColumnDescriptor(Bytes.toBytes(FAMILYS[i])));
+				} 
 				createOrOverwrite(admin, tableDescriptor);
 
-				this.htable = new HTable(con,TableName.valueOf(TABLE_NAME));
+				this.table = this.connect.getTable(TableName.valueOf(TABLE_NAME));
 				admin.close();
 			}  catch (Exception e) {
 				e.printStackTrace();
@@ -79,22 +81,29 @@ public static class CittyTrafficHbase extends Configured implements Tool {
 			admin.createTable(table);
 		}
 
-		public int addRow(String familly, string colName, string value){
+		public int addRow(String familly, String colName, String value){
+			try {
+				//Instantiating Put
+				Put p = new Put(Bytes.toBytes("row"));
 
-			//Instantiating Put
-			Put p = new Put(Bytes.toBytes("row"));
+				//Adding value
+				p.addColumn(Bytes.toBytes(familly),Bytes.toBytes(colName),Bytes.toBytes(value));
 
-			//Adding value
-			p.addColumn(Bytes.toBytes(familly),Bytes.toBytes(colName),Bytes.toBytes(value));
-
-			//Inserting data
-			this.htable.put(p);
-
+				//Inserting data
+				this.table.put(p);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 			return 0;
 		}
 
-		public void close(){
-			this.htable.close();
-		} 
 
+		public void close(){
+			try {
+				this.table.close();
+				this.connect.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 }
