@@ -5,22 +5,11 @@ import java.util.List;
 
 import scala.Tuple2;
 import org.apache.spark.sql.SparkSession;
-import org.apache.spark.sql.functions;
-import org.apache.spark.sql.catalyst.expressions.Concat;
-import org.apache.spark.sql.types.DataType;
-import org.apache.spark.sql.types.DataTypes;
-import org.apache.spark.sql.types.StructField;
-import org.apache.spark.sql.types.StructType;
+import bigdata.utilties.CittyTrafficValue;
+import bigdata.utilties.CittyTrafficHbase;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaSparkContext;
-import org.apache.spark.sql.Dataset;
-import org.apache.spark.sql.RelationalGroupedDataset;
-import org.apache.spark.sql.Row;
-import org.apache.spark.sql.RowFactory;
-import org.apache.spark.api.java.JavaRDD;
-import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
-import java.sql.Date;
 
 public class CittyTrafficData {
         static List<String> paths;
@@ -29,18 +18,66 @@ public class CittyTrafficData {
 
         
         public static void main(String[] args) throws Exception {
-            SparkSession spark = SparkSession.builder().appName("CittyTrafficProject").config("spark.master", "local").getOrCreate();
+            SparkSession spark = SparkSession.builder().appName("CittyTrafficProject").config("spark.some.config.option", "some-value").getOrCreate();
             JavaSparkContext sc =new JavaSparkContext(spark.sparkContext());
-
+            CittyTrafficHbase hbase=new CittyTrafficHbase();
             JavaPairRDD<Text, Text> rddWritable= sc.sequenceFile(pathResult, Text.class, Text.class);
 
-            JavaPairRDD<String,CittyTrafficValue> rddString=rddWritable.mapToPair(tuple->{
-                String valueString=tuple._2().toString();
-                String[] listValString=valueString.split(",");
-                CittyTrafficValue values=new CittyTrafficValue(Integer.parseInt(listValString[0]), Integer.parseInt(listValString[1]));
-                return new Tuple2<String,CittyTrafficValue>(tuple._1().toString(),values);
+            // comptes les différents type de véhicule en fonction de la date , l'heure et le radar 
+            JavaPairRDD<String,CittyTrafficValue>rddCountTypes =rddWritable.mapToPair(tuple->{
+                String keyString=tuple._1().toString();
+                //VALEUR
+                String[] listValues=tuple._2().toString().split(",");
+                int speed=0;
+                int sens=0;
+                try{
+                    speed=Integer.parseInt(listValues[1]);
+                }
+                catch(Exception e){
+
+                }
+                try{
+                    sens=Integer.parseInt(listValues[2]);
+                }
+                catch(Exception e){
+
+                }
+                CittyTrafficValue values=new CittyTrafficValue(speed, sens,listValues[0]);
+                return new Tuple2<String,CittyTrafficValue>(keyString,values); 
             });
-            rddString.countByKey().forEach((t, l) -> System.out.println(t+" "+l));
+            
+            rddCountTypes= rddCountTypes.reduceByKey((x,y)->{
+                x.sumTwoValues(y);
+                return x;
+            });
+            rddCountTypes.map(t->{
+                CittyTrafficValue val=t._2();
+                val.meanOfSpeed();
+                hbase.addRow(t._1(),val);
+                return t;
+            });
+            hbase.close();
+            // JavaPairRDD<String,CittyTrafficValue> rddString=rddWritable.mapToPair(tuple->{
+            //     String valueString=tuple._2().toString();
+            //     String[] listValString=valueString.split(",");
+            //     int speed=0;
+            //     int sens=0;
+            //     try{
+            //         speed=Integer.parseInt(listValString[0]);
+            //     }
+            //     catch(Exception e){
+
+            //     }
+            //     try{
+            //         sens=Integer.parseInt(listValString[1]);
+            //     }
+            //     catch(Exception e){
+
+            //     }
+            //     CittyTrafficValue values=new CittyTrafficValue(speed, sens);
+            //     return new Tuple2<String,CittyTrafficValue>(tuple._1().toString(),values);
+            // });
+            // rddString.countByKey().forEach((t, l) -> System.out.println(t+" "+l));
             
             // On transforme le PairRDD en dataset
             // JavaRDD<Row> rddRow=rddWritable.mapValues(text->{

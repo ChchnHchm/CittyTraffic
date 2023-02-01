@@ -191,7 +191,7 @@ public class CittyTrafficCleaner {
                         return "VL";
                 }
                 else if(time.equals("MOTO")||time.equals("2RM")||time.equals("2R")){
-                        return "2R";
+                        return "MOTO";
                 }
                 else if(time.equals("PL/Bus") || time.equals("BUS")||time.equals("Bus articul�")||time.equals("Bus ")||time.equals("Bus")){
                         return "BUS";
@@ -329,7 +329,7 @@ public class CittyTrafficCleaner {
         }
         dfFinal=dfFinal.select(col("JOUR"),col("HEURE"),col("MINUTE"),col("TYPE"),col("VITESSE"),col("SENS"),col("RADAR"));
         dfFinal.show();
-        JavaPairRDD<Text, Text> rddFinal =dfFinal.toJavaRDD().mapToPair(row ->new Tuple2<Text,Text>(new Text(row.getString(0)+","+row.getString(1)+","+row.getString(3)+","+row.getString(6)),new Text(row.getString(4)+","+row.getString(5))));
+        JavaPairRDD<Text, Text> rddFinal =dfFinal.toJavaRDD().mapToPair(row ->new Tuple2<Text,Text>(new Text(row.getString(0)+","+row.getString(1)+","+row.getString(6)),new Text(row.getString(3)+","+row.getString(4)+","+row.getString(5))));
         rddFinal.saveAsHadoopFile(pathResult, Text.class, Text.class, SequenceFileOutputFormat.class);
        
         
