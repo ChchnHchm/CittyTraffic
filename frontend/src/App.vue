@@ -41,9 +41,9 @@ html.dark{
 }
 #containerData{
   display: flex;
-  padding-top: 2%;
+  padding-top: 1%;
   border: none;
-  margin-top: 2%;
+  margin-top: 1%;
 }
 #options{
   display: flex;
