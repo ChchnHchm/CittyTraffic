@@ -7,7 +7,7 @@ import org.apache.hadoop.conf.Configured;
 
 
 
-
+import java.io.Serializable;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
@@ -20,10 +20,10 @@ import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.util.Bytes;
 
 
-public class CittyTrafficHbase extends Configured {
+public class CittyTrafficHbase extends Configured implements Serializable {
         private static final String[]  FAMILYS = {"key","type","direction","measure"}; 
 		private static final byte[] TABLE_NAME = Bytes.toBytes("nalves:CittyTrafficHbase");
-		private Configuration conf;
+		// private Configuration conf;
 		private Connection connect;
 		private Table table;
 
@@ -31,7 +31,7 @@ public class CittyTrafficHbase extends Configured {
 		public CittyTrafficHbase(){
 			try{
 				//Instantiating conf
-				this.conf = HBaseConfiguration.create();
+				setConf(HBaseConfiguration.create()); ;
 
 				//Instantiating admin class
 				//HBaseAdmin admin = new HBaseAdmin(con);
@@ -65,7 +65,7 @@ public class CittyTrafficHbase extends Configured {
 
 		public int addRow(String key,CittyTrafficValue values){
 			try {
-
+				
 				String[] keyString=key.split(","); //Date =0 Heure=1 Radar=2
 				//Instantiating Put
 				Put p = new Put(Bytes.toBytes("row"));

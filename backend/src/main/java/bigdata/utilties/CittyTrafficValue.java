@@ -107,7 +107,7 @@ public class CittyTrafficValue implements Serializable{
     public void sumTwoValues(CittyTrafficValue val2){
 
     //TYPE  
-        this.countBUS=val2.countMOTO+this.countBUS;
+        this.countBUS=val2.countBUS+this.countBUS;
         this.countMOTO=this.countMOTO+val2.countMOTO;
         this.countPL=this.countPL+val2.countPL;
         this.countUT=this.countUT+val2.countUT;
