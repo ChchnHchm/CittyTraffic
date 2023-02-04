@@ -47,5 +47,3 @@ export const CityTrafficAPI =  {
         ).then( res => res.data);
     }
 }
-
-export { CityTrafficAPI }; 
