@@ -12,6 +12,7 @@ router.get('/', async function(req, res, next) {
 router.get('/getDate', async function(req, res, next) {
   res.setHeader('Content-Type',"application/json");
   try {
+    // date :  req.query.date
     res.status(200).json(); //rajouter fonction
   } catch (error) {
     console.error(error);
@@ -25,6 +26,8 @@ router.get('/getDate', async function(req, res, next) {
 router.get('/getHours', async function(req, res, next) {
   res.setHeader('Content-Type',"application/json");
   try {
+    // date :  req.query.date
+    // hours :  req.query.hours
     res.status(200).json(); //rajouter fonction
   } catch (error) {
     console.error(error);
@@ -38,6 +41,8 @@ return all data for a radar and specified hour
 router.get('/getRadarDate', async function(req, res, next) {
   res.setHeader('Content-Type',"application/json");
   try {
+    // radar :  req.query.radar
+    // date :  req.query.date
     res.status(200).json(); //rajouter fonction
   } catch (error) {
     console.error(error);
@@ -51,6 +56,9 @@ return all data for specified hour
 router.get('/getRadarHours', async function(req, res, next) {
   res.setHeader('Content-Type',"application/json");
   try {
+    // radar :  req.query.radar
+    // date :  req.query.date
+    // hours :  req.query.hours
     res.status(200).json(); //rajouter fonction
   } catch (error) {
     console.error(error);

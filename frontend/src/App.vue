@@ -7,11 +7,6 @@ import infoCard from "@/components/infoCard.vue";
 import timeRange from  "@/components/timeRange.vue";
 import datepicker from "@/components/datePicker.vue";
 </script>
-<script>
-import { CityTrafficAPI } from "@/store/cityTrafficAPI.js";
-await CityTrafficAPI.getByDate("2022-10-12");
-
-</script>
 
 <template >
 <link href="/dist/output.css" rel="stylesheet">
