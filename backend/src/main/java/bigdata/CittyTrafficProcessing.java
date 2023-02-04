@@ -37,7 +37,6 @@ public class CittyTrafficProcessing extends Configured implements Tool,Serializa
     private static final byte[] TABLE_NAME = Bytes.toBytes("nalves:CittyTrafficHbase");
     private static final String[]  FAMILYS = {"key","type","direction","measure"}; 
 	private static String pathResult="/user/nalves/cittyTrafic/Result";
-	private long currentRow=0;
 
 		public static void createOrOverwrite(Admin admin, HTableDescriptor table) throws IOException {
 			if (admin.tableExists(table.getTableName())) {
@@ -64,15 +63,15 @@ public class CittyTrafficProcessing extends Configured implements Tool,Serializa
 
 		private void addRow(String key,CittyTrafficValue values,Table table){
 			try {
-				String[] keyString=key.split(","); //Date =0 Heure=1 Radar=2
+				// String[] keyString=key.split(","); //Date =0 Heure=1 Radar=2
 				//Instantiating Put
-				Put p = new PutSerializable(Bytes.toBytes(Long.toString(currentRow)));
+				Put p = new Put(Bytes.toBytes(key));
 
 				//Adding value
 				//key
-				p.addColumn(Bytes.toBytes("key"),Bytes.toBytes("date"),Bytes.toBytes(keyString[0]));
-				p.addColumn(Bytes.toBytes("key"),Bytes.toBytes("hour"),Bytes.toBytes(keyString[1]));
-				p.addColumn(Bytes.toBytes("key"),Bytes.toBytes("radar"),Bytes.toBytes(keyString[2]));
+				// p.addColumn(Bytes.toBytes("key"),Bytes.toBytes("date"),Bytes.toBytes(keyString[0]));
+				// p.addColumn(Bytes.toBytes("key"),Bytes.toBytes("hour"),Bytes.toBytes(keyString[1]));
+				// p.addColumn(Bytes.toBytes("key"),Bytes.toBytes("radar"),Bytes.toBytes(keyString[2]));
 				
 				//type
 				p.addColumn(Bytes.toBytes("type"),Bytes.toBytes("bus"),Bytes.toBytes(Integer.toString(values.getCountBUS())));
@@ -92,7 +91,6 @@ public class CittyTrafficProcessing extends Configured implements Tool,Serializa
 
 				//Inserting data
 				table.put(p);
-				currentRow++;
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
