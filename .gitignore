@@ -24,3 +24,7 @@ hs_err_pid*
 
 
 target/
+
+# Dependency directories
+node_modules/
+jspm_packages/
