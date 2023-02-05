@@ -1,5 +1,4 @@
 var filters = require('hbase-client').filters;
-const client = new hbase.Client({})
 
 function filterDateAndHour(table,date,hour){
     var stringFilter=date+","+hour+".*";
@@ -38,7 +37,7 @@ function filterDate(table,date){
 function filterDateAndRadar(table,date,radar){
     var filterBigin=date+".*";
     var filterEnd=".+"+radar;
-    table.scan({
+    return table.scan({
         filter: {
             "op":"MUST_PASS_ALL","type":"FilterList","filters":[{
                 "op":"EQUAL",
@@ -53,7 +52,7 @@ function filterDateAndRadar(table,date,radar){
         }
     }, (error, cells) => {
         assert.ifError(error)
-      })
+      }).get(resultScan);
 
 }
 
