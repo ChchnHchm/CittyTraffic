@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
-
+import * as filter from "../utilities/filter.js" 
+const client = new hbase.Client({host: 'nalves@147.210.117.54', port: 3000})
 /* GET users listing. */
 router.get('/', async function(req, res, next) {
     res.status(200);
@@ -59,6 +60,7 @@ router.get('/getRadarHours', async function(req, res, next) {
     // radar :  req.query.radar
     // date :  req.query.date
     // hours :  req.query.hours
+    console.log(filter.filterHourAndRadar(client.getTable('nalves:CittyTrafficHbase'),"2022-10-12","8","P4"))
     res.status(200).json(); //rajouter fonction
   } catch (error) {
     console.error(error);
