@@ -21,7 +21,7 @@ router.get('/getDate', async function(req, res, next) {
   res.setHeader('Content-Type',"application/json");
   try {
     // date :  req.query.date
-    client.table('nalves:CittyTraficHbase').schema(function(error, schema){
+    client.table('nalves:CittyTrafficHbase').schema(function(error, schema){
       console.info(schema)
       console.info(error)
       });
