@@ -5,8 +5,6 @@ var assert = require('assert');
 
 const username='nalves'
 var router = express.Router();
-//import  { filterFunctions } from "../utilities/filter";
-const filterFunctions = require("../utilities/filter");
 const client = new hbase.Client({host: 'lsd-prod-namenode-0.lsd.novalocal', port: 8080,protocol: 'https',
 krb5:{service_principal: 'HTTP/lsd-prod-namenode-0.lsd.novalocal',principal: username+"@LSD.NOVALOCAL"}
 });
