@@ -1,10 +1,14 @@
 var express = require('express');
 const hbase = require('hbase');
-var assert = require('assert') 
+var assert = require('assert');
+const krb5 =require('krb5')
+
 var router = express.Router();
 //import  { filterFunctions } from "../utilities/filter";
 const filterFunctions = require("../utilities/filter");
-const client = new hbase.Client({host: 'lsd-prod-namenode-0.lsd.novalocal', port: 3000});
+const client = new hbase.Client({host: 'lsd-prod-namenode-0.lsd.novalocal', port: 8080,protocol: 'https',
+krb5:{service_principal: 'HTTP/lsd-prod-namenode-0.lsd.novalocal',principal:"nalves@LSD.NOVALOCAL"}
+});
 /* GET users listing. */
 router.get('/', async function(req, res, next) {
     res.status(200);
@@ -17,8 +21,10 @@ router.get('/getDate', async function(req, res, next) {
   res.setHeader('Content-Type',"application/json");
   try {
     // date :  req.query.date
-    console.log(filterHourAndRadar(client.table('nalves:CittyTrafficHbase'),"2022-10-12","8","P4"))
-
+    client.table('nalves:CittyTraficHbase').schema(function(error, schema){
+      console.info(schema)
+      console.info(error)
+      });
     res.status(200).json(); //rajouter fonction
   } catch (error) {
     console.error(error);
