@@ -21,8 +21,9 @@
         ></l-tile-layer>
         <l-control-zoom positions="bottomright" ></l-control-zoom>
         <l-marker class="markerDiv" v-for="marker, index in markersCoord" :lat-lng="marker" @click="showDetails" >
-          <LTooltip > HELLO </LTooltip>
+          <LTooltip >    </LTooltip>
         </l-marker>
+        <l-polyline :lat-lngs="markersCoord" color="green" />
       </l-map>
     </div>
   </div>
@@ -31,7 +32,7 @@
 
 <script>
 import "leaflet/dist/leaflet.css";
-import { LMap, LTileLayer, LControlZoom,LMarker, LTooltip } from "@vue-leaflet/vue-leaflet";
+import { LMap, LTileLayer, LControlZoom,LMarker, LTooltip, LPolyline } from "@vue-leaflet/vue-leaflet";
 import {latLngBounds , latLng} from "leaflet"; 
 import {markersCoord, markersName, marker,  markerMap}  from "@/data/data.js";
 import { CityTrafficAPI }  from "@/store/cityTrafficAPI.js";
@@ -45,7 +46,8 @@ export default {
     LTileLayer,
     LControlZoom,
     LMarker,
-    LTooltip
+    LTooltip,
+    LPolyline
   },
   mounted(){
   },

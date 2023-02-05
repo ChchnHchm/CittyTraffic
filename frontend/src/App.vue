@@ -1,6 +1,4 @@
 <script setup>
-import { RouterLink, RouterView } from "vue-router";
-import HelloWorld from "./components/HelloWorld.vue";
 import Map from '@/components/Map.vue';
 import menuBar from "@/components/MenuBar.vue";
 import infoCard from "@/components/infoCard.vue";
