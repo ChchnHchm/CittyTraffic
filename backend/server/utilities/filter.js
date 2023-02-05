@@ -18,8 +18,10 @@ const filterFunctions =  {
 },
 
  filterDate: function(table,date){
+  console.log(stringFilter);
+
     var stringFilter=date+".*";
-    table.scan({
+   return table.scan({
         filter: {
             "op":"MUST_PASS_ALL","type":"FilterList","filters":[{
                 "op":"EQUAL",
@@ -30,7 +32,7 @@ const filterFunctions =  {
         }
     }, (error, cells) => {
         assert.ifError(error)
-      })
+      }).get(resultScan);
 
 },
 
