@@ -12,14 +12,12 @@ const filterFunctions =  {
               }
             ]
         }
-    },).get(resultScan);
-    
-    // (error, cells) => {
-    //   console.log(cells.lenght);
-    //     assert.ifError(error);
-    //     return cells;
+    },(error, cells) => {
+      console.log(cells.lenght);
+        assert.ifError(error);
+        return cells;
 
-    //   })
+      })
 
 },
 
