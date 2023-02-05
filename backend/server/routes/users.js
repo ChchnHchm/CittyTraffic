@@ -91,3 +91,10 @@ module.exports = router;
       assert.ifError(error)
     }).get(resultScan)
 }
+
+function resultScan(error,result){
+  if(error){
+      throw error;
+  }
+  return result;
+}
