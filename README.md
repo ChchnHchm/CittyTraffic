@@ -1,6 +1,6 @@
 # CittyTraffic
 
-1 - Compiler et envoyer dans la gateway :
+1 - Compiler et envoyer dans la gateway :  
     !! LOGIN A CHANGER DANS backend/compil.sh !!
     cd backend/
     ./compile.sh
