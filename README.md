@@ -11,7 +11,7 @@
     `4.  - time spark-submit --num-executors 4 --executor-cores 2 --executor-memory 512M --master yarn --class bigdata.CittyTrafficProcessing Exec-CittyTrafficProcessing.jar`    
 ## 4 - Allumer le backend :  
   `1. ssh -L 1369:127.0.0.1:3000 hchouchane@147.210.117.54`  
-  `!! a faire depuis la gateway !!`   
+  `!! Le reste est a faire depuis la gateway !!`   
   `2.  - kinit`   
   `3.  - export HADOOP_CLASSPATH=`hadoop classpath`:`hbase mapredcp`:/etc/hbase/conf:/usr/hdp/3.0.0.0-1634/hbase/lib/*`   
   `4. cd backend/server`  
