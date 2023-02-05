@@ -20,15 +20,8 @@ router.get('/', async function(req, res, next) {
 router.get('/getDate', async function(req, res, next) {
   res.setHeader('Content-Type',"application/json");
   try {
-    // date :  req.query.date
-    // client.table(username+':CittyTrafficHbase').schema(function(error, schema){
-    //   console.info(schema)
-    //   console.info(error)
-    //   });
     filterFunctions.filterDate(client.table(username+':CittyTrafficHbase'),req.query.date);
-    // table.row("2022-10-12,8,P4").get('type:vl', (error, value) => {
-    //   console.log(value)
-    // });
+    
     res.status(200).json(); //rajouter fonction
   } catch (error) {
     console.error(error);
@@ -44,6 +37,8 @@ router.get('/getHours', async function(req, res, next) {
   try {
     // date :  req.query.date
     // hours :  req.query.hours
+    console.log(filterFunctions.filterDateAndHour(client.table(username+':CittyTrafficHbase'),req.query.date,req.query.hours));
+
     res.status(200).json(); //rajouter fonction
   } catch (error) {
     console.error(error);
@@ -59,6 +54,7 @@ router.get('/getRadarDate', async function(req, res, next) {
   try {
     // radar :  req.query.radar
     // date :  req.query.date
+    console.log(filterFunctions.filterDateAndRadar(client.table(username+':CittyTrafficHbase'),req.query.date,req.query.radar));
     res.status(200).json(); //rajouter fonction
   } catch (error) {
     console.error(error);
@@ -75,6 +71,8 @@ router.get('/getRadarHours', async function(req, res, next) {
     // radar :  req.query.radar
     // date :  req.query.date
     // hours :  req.query.hours
+    console.log(filterFunctions.filterHourAndRadar(client.table(username+':CittyTrafficHbase'),req.query.date,req.query.hours,req.query.radar));
+
     res.status(200).json(); //rajouter fonction
   } catch (error) {
     console.error(error);

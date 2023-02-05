@@ -13,7 +13,9 @@ const filterFunctions =  {
             ]
         }
     }, (error, cells) => {
-        assert.ifError(error)
+        assert.ifError(error);
+        return cells;
+
       })
 
 },
@@ -32,8 +34,9 @@ const filterFunctions =  {
             ]
         }
     }, (error, cells) => {
-      console.log(cells);
-        assert.ifError(error)
+        assert.ifError(error);
+        return cells;
+
       });
 
 },
@@ -55,7 +58,9 @@ const filterFunctions =  {
             ]
         }
     }, (error, cells) => {
-        assert.ifError(error)
+        assert.ifError(error);
+        return cells;
+
       }).get(resultScan);
 
 },
@@ -73,7 +78,9 @@ const filterFunctions =  {
             ]
         }
     }, (error, cells) => {
-        assert.ifError(error)
+        assert.ifError(error);
+        return cells;
+
       }).get(resultScan)
 }
 }
