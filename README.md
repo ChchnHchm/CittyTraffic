@@ -22,3 +22,4 @@
 `!! apres avoir allumé le backend !! `   
       `1. cd frontend`  
       `2. npm ci`   
+      `3. npm run dev` 
