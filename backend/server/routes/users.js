@@ -16,7 +16,7 @@ router.get('/getDate', async function(req, res, next) {
   res.setHeader('Content-Type',"application/json");
   try {
     // date :  req.query.date
-    console.log(filterFunctions.filterHourAndRadar(client.table('nalves:CittyTrafficHbase'),"2022-10-12","8","P4"))
+    console.log(filterHourAndRadar(client.table('nalves:CittyTrafficHbase'),"2022-10-12","8","P4"))
 
     res.status(200).json(); //rajouter fonction
   } catch (error) {
@@ -64,7 +64,7 @@ router.get('/getRadarHours', async function(req, res, next) {
     // radar :  req.query.radar
     // date :  req.query.date
     // hours :  req.query.hours
-    console.log(filterFunctions.filterHourAndRadar(client.getTable('nalves:CittyTrafficHbase'),"2022-10-12","8","P4"))
+    console.log(filterFunctions.filterHourAndRadar(client.table('nalves:CittyTrafficHbase'),"2022-10-12","8","P4"))
     res.status(200).json(); //rajouter fonction
   } catch (error) {
     console.error(error);
@@ -73,3 +73,20 @@ router.get('/getRadarHours', async function(req, res, next) {
 });
 
 module.exports = router;
+
+ function filterHourAndRadar (table,date,hour,radar){
+  var stringFilter=date+","+hour+","+radar;
+  console.log(stringFilter);
+  return table.scan({
+      filter: {
+          "op":"MUST_PASS_ALL","type":"FilterList","filters":[{
+              "op":"EQUAL",
+              "type":"RowFilter",
+              "comparator":{"value":stringFilter,"type":"RegexStringComparator"}
+            }
+          ]
+      }
+  }, (error, cells) => {
+      assert.ifError(error)
+    }).get(resultScan)
+}
