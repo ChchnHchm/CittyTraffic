@@ -1,3 +1,4 @@
+var assert = require('assert');
 const filterFunctions =  {
 
  filterDateAndHour: function (table,date,hour){
@@ -31,8 +32,9 @@ const filterFunctions =  {
             ]
         }
     }, (error, cells) => {
+      console.log(cells);
         assert.ifError(error)
-      }).on('end', rows=> console.log(rows))
+      });
 
 },
 
