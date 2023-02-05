@@ -1,5 +1,6 @@
 var express = require('express');
-const hbase = require('hbase')
+const hbase = require('hbase');
+var assert = require('assert') 
 var router = express.Router();
 //import  { filterFunctions } from "../utilities/filter";
 const filterFunctions = require("../utilities/filter");
