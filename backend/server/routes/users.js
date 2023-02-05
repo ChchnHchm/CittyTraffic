@@ -25,10 +25,10 @@ router.get('/getDate', async function(req, res, next) {
     //   console.info(schema)
     //   console.info(error)
     //   });
-    // filterFunctions.filterDate(client.table(username+':CittyTrafficHbase'),req.query.date);
-    table.row("2022-10-12,8,P4").get('type:vl', (error, value) => {
-      console.log(value)
-    });
+    filterFunctions.filterDate(client.table(username+':CittyTrafficHbase'),req.query.date);
+    // table.row("2022-10-12,8,P4").get('type:vl', (error, value) => {
+    //   console.log(value)
+    // });
     res.status(200).json(); //rajouter fonction
   } catch (error) {
     console.error(error);
