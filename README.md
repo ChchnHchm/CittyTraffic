@@ -15,7 +15,8 @@
   `2.   kinit`   
   `3.   export HADOOP_CLASSPATH=`hadoop classpath`:`hbase mapredcp`:/etc/hbase/conf:/usr/hdp/3.0.0.0-1634/hbase/lib/*`   
   `4. cd backend/server`  
-  `5. npm ci`    
+  `5. npm ci`  
+  `6. npm run start`  
 
 ## 4 - Allumer le frontend :  
 `!! apres avoir allumé le backend !! `   
