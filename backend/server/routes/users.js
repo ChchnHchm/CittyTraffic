@@ -4,7 +4,7 @@ var assert = require('assert')
 var router = express.Router();
 //import  { filterFunctions } from "../utilities/filter";
 const filterFunctions = require("../utilities/filter");
-const client = new hbase.Client({host: 'nalves@147.210.117.54', port: 3000});
+const client = new hbase.Client({host: 'lsd-prod-namenode-0.lsd.novalocal', port: 3000});
 /* GET users listing. */
 router.get('/', async function(req, res, next) {
     res.status(200);
