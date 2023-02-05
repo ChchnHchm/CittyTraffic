@@ -32,7 +32,7 @@ const filterFunctions =  {
         }
     }, (error, cells) => {
         assert.ifError(error)
-      }).get(resultScan);
+      }).on('end', rows=> console.log(rows))
 
 },
 
