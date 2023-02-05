@@ -1,4 +1,3 @@
-var filters = require('hbase').filters;
 const filterFunctions =  {
 
  filterDateAndHour: function (table,date,hour){
