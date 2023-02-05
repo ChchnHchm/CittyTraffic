@@ -1,6 +1,8 @@
 var express = require('express');
 const hbase = require('hbase');
-const krb5 =require('krb5')
+const krb5 =require('krb5');
+var assert = require('assert');
+
 const username='nalves'
 var router = express.Router();
 //import  { filterFunctions } from "../utilities/filter";
