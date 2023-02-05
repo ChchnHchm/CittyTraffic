@@ -1,4 +1,5 @@
 var express = require('express');
+const hbase = require('hbase')
 var router = express.Router();
 //import  { filterFunctions } from "../utilities/filter";
 const filterFunctions = require("../utilities/filter");
