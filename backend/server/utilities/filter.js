@@ -1,6 +1,7 @@
+var assert = require('assert');
 const filterFunctions =  {
 
- filterDateAndHour: function (table,date,hour){
+ filterDateAndHour: async function (table,date,hour){
     var stringFilter=date+","+hour+".*";
     table.scan({
         filter: {
@@ -11,15 +12,20 @@ const filterFunctions =  {
               }
             ]
         }
-    }, (error, cells) => {
-        assert.ifError(error)
+    },(error, cells) => {
+      console.log(cells.lenght);
+        assert.ifError(error);
+        return cells;
+
       })
 
 },
 
  filterDate: function(table,date){
+  console.log(stringFilter);
+
     var stringFilter=date+".*";
-    table.scan({
+   table.scan({
         filter: {
             "op":"MUST_PASS_ALL","type":"FilterList","filters":[{
                 "op":"EQUAL",
@@ -29,15 +35,17 @@ const filterFunctions =  {
             ]
         }
     }, (error, cells) => {
-        assert.ifError(error)
-      })
+        assert.ifError(error);
+        return cells;
+
+      });
 
 },
 
  filterDateAndRadar :function(table,date,radar){
     var filterBigin=date+".*";
     var filterEnd=".+"+radar;
-    return table.scan({
+    table.scan({
         filter: {
             "op":"MUST_PASS_ALL","type":"FilterList","filters":[{
                 "op":"EQUAL",
@@ -51,7 +59,9 @@ const filterFunctions =  {
             ]
         }
     }, (error, cells) => {
-        assert.ifError(error)
+        assert.ifError(error);
+        return cells;
+
       }).get(resultScan);
 
 },
@@ -59,7 +69,7 @@ const filterFunctions =  {
  filterHourAndRadar:function(table,date,hour,radar){
     var stringFilter=date+","+hour+","+radar;
     console.log(stringFilter);
-    return table.scan({
+    table.scan({
         filter: {
             "op":"MUST_PASS_ALL","type":"FilterList","filters":[{
                 "op":"EQUAL",
@@ -69,7 +79,9 @@ const filterFunctions =  {
             ]
         }
     }, (error, cells) => {
-        assert.ifError(error)
+        assert.ifError(error);
+        return cells;
+
       }).get(resultScan)
 }
 }
