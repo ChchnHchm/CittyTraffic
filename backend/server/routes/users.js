@@ -25,7 +25,7 @@ router.get('/getDate', async function(req, res, next) {
       console.info(schema)
       console.info(error)
       });
-    filterFunctions.filterDate(client.table(username+':CittyTrafficHbase'),req.query.date);
+    // filterFunctions.filterDate(client.table(username+':CittyTrafficHbase'),req.query.date);
     res.status(200).json(); //rajouter fonction
   } catch (error) {
     console.error(error);
