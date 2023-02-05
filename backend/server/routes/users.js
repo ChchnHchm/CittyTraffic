@@ -22,8 +22,21 @@ router.get('/', async function(req, res, next) {
 router.get('/getDate', async function(req, res, next) {
   res.setHeader('Content-Type',"application/json");
   try {
-    console.log("FINAL"+filterFunctions.filterDate(client.table(username+':CittyTrafficHbase'),req.query.date));
-    
+    var stringFilter=req.query.date+".*";
+   table.scan({
+        filter: {
+            "op":"MUST_PASS_ALL","type":"FilterList","filters":[{
+                "op":"EQUAL",
+                "type":"RowFilter",
+                "comparator":{"value":stringFilter,"type":"RegexStringComparator"}
+              }
+            ]
+        }
+    }, (error, cells) => {
+        assert.ifError(error);
+        res.status(200).json(cells);
+
+      });
     res.status(200).json(); //rajouter fonction
   } catch (error) {
     console.error(error);
@@ -51,9 +64,9 @@ router.get('/getHours', async function(req, res, next) {
         }
     },(error, cells) => {
         assert.ifError(error);
-        console.log(cells)
         res.status(200).json(cells);
       })
+
   } catch (error) {
     console.error(error);
     await res.status(424).json({error});
@@ -68,8 +81,27 @@ router.get('/getRadarDate', async function(req, res, next) {
   try {
     // radar :  req.query.radar
     // date :  req.query.date
-    console.log(filterFunctions.filterDateAndRadar(client.table(username+':CittyTrafficHbase'),req.query.date,req.query.radar));
-    res.status(200).json(); //rajouter fonction
+   var filterBigin=req.query.date+".*";
+    var filterEnd=".+"+req.query.radar;
+    table.scan({
+        filter: {
+            "op":"MUST_PASS_ALL","type":"FilterList","filters":[{
+                "op":"EQUAL",
+                "type":"RowFilter",
+                "comparator":{"value":filterBigin,"type":"RegexStringComparator"}
+              },{
+                "op":"EQUAL",
+                "type":"RowFilter",
+                "comparator":{"value":filterEnd,"type":"RegexStringComparator"}
+              }
+            ]
+        }
+    }, (error, cells) => {
+        assert.ifError(error);
+        res.status(200).json(cells); //rajouter fonction
+
+      });
+
   } catch (error) {
     console.error(error);
     await res.status(424).json({error});
@@ -85,9 +117,22 @@ router.get('/getRadarHours', async function(req, res, next) {
     // radar :  req.query.radar
     // date :  req.query.date
     // hours :  req.query.hours
-    console.log(filterFunctions.filterHourAndRadar(client.table(username+':CittyTrafficHbase'),req.query.date,req.query.hours,req.query.radar));
+    var stringFilter=req.query.date+","+req.query.hours+","+req.query.radar;
+    console.log(stringFilter);
+    table.scan({
+        filter: {
+            "op":"MUST_PASS_ALL","type":"FilterList","filters":[{
+                "op":"EQUAL",
+                "type":"RowFilter",
+                "comparator":{"value":stringFilter,"type":"RegexStringComparator"}
+              }
+            ]
+        }
+    }, (error, cells) => {
+        assert.ifError(error);
+        res.status(200).json(cells); //rajouter fonction
 
-    res.status(200).json(); //rajouter fonction
+      })
   } catch (error) {
     console.error(error);
     await res.status(424).json({error});
