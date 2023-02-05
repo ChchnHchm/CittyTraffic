@@ -13,7 +13,7 @@ const filterFunctions =  {
             ]
         }
     }, (error, cells) => {
-      console.log(cells);
+      console.log(cells.lenght);
         assert.ifError(error);
         return cells;
 
