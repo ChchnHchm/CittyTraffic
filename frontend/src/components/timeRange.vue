@@ -2,14 +2,15 @@
 <div id="RangeSlider">
   <p>Time :  {{range}} H</p>
   <div id="inputRange">
-  <input v-model="range" type="range" min="0" max="23" class="slider" id="Range">
-  <input type="reset" @click="resetTime"   />
+  <input v-model="range" type="range" min="0" max="23" class="slider" id="Range" @change="changeTime" >
+  <input type="reset" @click="resetTime"  />
   </div>
 </div>
 </template>
  
 <script>
-import  {ref} from "vue";
+import {ref} from "vue";
+import {HourCounter} from "@/store/Hour.js";
 
 export default {
     name:'timeRange',
@@ -20,9 +21,14 @@ export default {
     },
     methods:{
       resetTime(){
-        document.getElementById("Range").value = new Date().getHours();
-        this.range = new Date().getHours()
-      }
+        const newhour = new Date().getHours();
+        document.getElementById("Range").value =newhour;
+        this.range = newhour;
+        HourCounter.changeHour(newhour);
+      },
+      changeTime(event){
+        HourCounter.changeHour(event.target.value);
+      } 
     } 
 }
 </script> 

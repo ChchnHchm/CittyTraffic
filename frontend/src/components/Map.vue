@@ -31,7 +31,9 @@
 import "leaflet/dist/leaflet.css";
 import { LMap, LTileLayer, LControlZoom,LMarker } from "@vue-leaflet/vue-leaflet";
 import {latLngBounds , latLng} from "leaflet"; 
-import {markersCoord, markersName,markerNumber}  from "@/data/data.js";
+import {markersCoord, markersName}  from "@/data/data.js";
+import { CityTrafficAPI }  from "@/store/cityTrafficAPI.js";
+
 export default {
   name: "Map",
   components: {
@@ -69,22 +71,22 @@ export default {
       attribution:'&copy; <a target="_blank" href="http://osm.org/copyright">OpenStreetMap</a> contributors',
       markersCoord: Array.from(markersCoord),
       markersName:markersName,
-      markerNumber: markerNumber,
     };
   },
   methods:{
     zoomUpdate(zoom){
       this.currentZoom  = zoom;
     },
-    showDetails(event){
-      document.getElementById("InfoCard").innerHTML= "Here are the biggest enterprise technology acquisitions of 2021 so far, in reverse chronological order.";
+    async showDetails(event){
+      //let data = await CityTrafficAPI.getByRadarHours();
+      //document.getElementById("InfoCard").innerHTML= "Here are the biggest enterprise technology acquisitions of 2021 so far, in reverse chronological order.";
     },
     diplayALLMarker(){
       let mode = document.getElementById("SensorDiplay").alt;
       if(mode === "Hide"){
         document.getElementById("SensorDiplay").alt = "Display";
         document.getElementById("SensorDiplay").src = "/src/assets/show.png";
-        this.markersCoord = [] ;
+        this.markersCoord = [];
       }else{
         document.getElementById("SensorDiplay").alt = "Hide";
         document.getElementById("SensorDiplay").src = "/src/assets/hide.png";
@@ -92,18 +94,14 @@ export default {
       }
     },
     displayMarker(event){
-      console.log(event.target.alt);
-      console.log(markersCoord[event.target.alt]);
-      console.log(this.markersCoord);
       if(this.markersCoord.includes(markersCoord[event.target.alt])){
-        const index = this.markersCoord.indexOf(markersCoord[event.target.alt]);
-        this.markersCoord.splice(index,1);
-        console.log(this.markersCoord);
+          const index = this.markersCoord.indexOf(markersCoord[event.target.alt]);
+          this.markersCoord.splice(index,1);        
       }else{
-        //this.markersCoord.push(markersCoord[event.target.alt]);
+        this.markersCoord.push(markersCoord[event.target.alt]);
       }
-    } 
-  } 
+    }
+  }
 };
 </script>
 

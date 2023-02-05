@@ -7,14 +7,20 @@ import infoCard from "@/components/infoCard.vue";
 import timeRange from  "@/components/timeRange.vue";
 import datepicker from "@/components/datePicker.vue";
 </script>
+<script>
+
+export default {
+  name: 'App',
+}
+</script>
 
 <template >
 <link href="/dist/output.css" rel="stylesheet">
 <div id="app">
   <menuBar />
   <div id="options">
-    <datepicker />
-    <timeRange />
+    <datepicker   />
+    <timeRange /> 
   </div>
   <div id="containerData" >
     <Map />
