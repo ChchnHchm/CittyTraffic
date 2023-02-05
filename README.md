@@ -13,7 +13,7 @@
   `1. ssh -L 1369:127.0.0.1:3000 hchouchane@147.210.117.54`  
   `!! Le reste est a faire depuis la gateway !!`   
   `2.   kinit`   
-  `3.   export HADOOP_CLASSPATH=`hadoop classpath`:`hbase mapredcp`:/etc/hbase/conf:/usr/hdp/3.0.0.0-1634/hbase/lib/*`   
+  `3.    `export HADOOP_CLASSPATH=`hadoop classpath`:`hbase mapredcp`:/etc/hbase/conf:/usr/hdp/3.0.0.0-1634/hbase/lib/*`   
   `4. cd backend/server`  
   `5. npm ci`  
   `6. npm run start`  
