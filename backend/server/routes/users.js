@@ -20,7 +20,7 @@ router.get('/', async function(req, res, next) {
 router.get('/getDate', async function(req, res, next) {
   res.setHeader('Content-Type',"application/json");
   try {
-    console.log(filterFunctions.filterDate(client.table(username+':CittyTrafficHbase'),req.query.date));
+    console.log("FINAL \n"+filterFunctions.filterDate(client.table(username+':CittyTrafficHbase'),req.query.date));
     
     res.status(200).json(); //rajouter fonction
   } catch (error) {

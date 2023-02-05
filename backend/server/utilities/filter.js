@@ -1,7 +1,7 @@
 var assert = require('assert');
 const filterFunctions =  {
 
- filterDateAndHour: function (table,date,hour){
+ filterDateAndHour: async function (table,date,hour){
     var stringFilter=date+","+hour+".*";
     table.scan({
         filter: {
@@ -13,6 +13,7 @@ const filterFunctions =  {
             ]
         }
     }, (error, cells) => {
+      console.log(cells);
         assert.ifError(error);
         return cells;
 
