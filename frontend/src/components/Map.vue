@@ -20,7 +20,9 @@
           :attribution="attribution"
         ></l-tile-layer>
         <l-control-zoom positions="bottomright" ></l-control-zoom>
-        <l-marker class="markerDiv" v-for="marker, index in markersCoord" :lat-lng="marker" @click="showDetails" ></l-marker>
+        <l-marker class="markerDiv" v-for="marker, index in markersCoord" :lat-lng="marker" @click="showDetails" >
+          <LTooltip > HELLO </LTooltip>
+        </l-marker>
       </l-map>
     </div>
   </div>
@@ -29,10 +31,12 @@
 
 <script>
 import "leaflet/dist/leaflet.css";
-import { LMap, LTileLayer, LControlZoom,LMarker } from "@vue-leaflet/vue-leaflet";
+import { LMap, LTileLayer, LControlZoom,LMarker, LTooltip } from "@vue-leaflet/vue-leaflet";
 import {latLngBounds , latLng} from "leaflet"; 
-import {markersCoord, markersName}  from "@/data/data.js";
+import {markersCoord, markersName, marker,  markerMap}  from "@/data/data.js";
 import { CityTrafficAPI }  from "@/store/cityTrafficAPI.js";
+import  { RadarCounter } from "@/store/Radar.js";
+
 
 export default {
   name: "Map",
@@ -41,6 +45,7 @@ export default {
     LTileLayer,
     LControlZoom,
     LMarker,
+    LTooltip
   },
   mounted(){
   },
@@ -71,6 +76,7 @@ export default {
       attribution:'&copy; <a target="_blank" href="http://osm.org/copyright">OpenStreetMap</a> contributors',
       markersCoord: Array.from(markersCoord),
       markersName:markersName,
+      markerID: Array.from(marker),
     };
   },
   methods:{
@@ -78,8 +84,8 @@ export default {
       this.currentZoom  = zoom;
     },
     async showDetails(event){
-      //let data = await CityTrafficAPI.getByRadarHours();
-      //document.getElementById("InfoCard").innerHTML= "Here are the biggest enterprise technology acquisitions of 2021 so far, in reverse chronological order.";
+      const str = event.latlng.lat+ ", " + event.latlng.lng;
+      RadarCounter.changeName(markerMap.get(str));
     },
     diplayALLMarker(){
       let mode = document.getElementById("SensorDiplay").alt;
@@ -100,7 +106,7 @@ export default {
       }else{
         this.markersCoord.push(markersCoord[event.target.alt]);
       }
-    }
+    },
   }
 };
 </script>

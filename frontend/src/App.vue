@@ -11,12 +11,12 @@ import {CityTrafficAPI} from "@/store/cityTrafficAPI.js";
 <script>
 ///// TEST ///////
 
-let data = await CityTrafficAPI.getByDate("2022-10-12");
+//let data = await CityTrafficAPI.getByDate("2022-10-12");
 // let data =await CityTrafficAPI.getByHours("2022-10-12","8");
 // let data =await CityTrafficAPI.getByRadarDate("P13","2022-10-12");
 // let data =await CityTrafficAPI.getByRadarHours("P13","2022-10-12","8");
 
-console.log(data);
+//console.log(data);
 /////////////////
 
 export default {
@@ -50,6 +50,7 @@ html.dark{
   justify-content: space-between;
 }  
 :root {
+  --main-bg-color: dark;
     --primary: #EB1616;
     --secondary: #191C24;
     --light: #6C7293;
@@ -63,8 +64,8 @@ html.dark{
 }
 #options{
   display: flex;
-  padding-top: 2%;
-  margin-top: 2%;
+  padding-top: 1%;
+  margin-top: 1%;
   justify-content: space-evenly;
   background-color: #191C24;
   align-items: center;
