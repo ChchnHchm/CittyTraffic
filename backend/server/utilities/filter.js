@@ -80,4 +80,4 @@ function resultScan(error,result){
     return result;
 }
 
-exports.filterFunctions = filterFunctions;
+module.exports = filterFunctions;
