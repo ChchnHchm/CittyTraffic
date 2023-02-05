@@ -8,7 +8,7 @@ var router = express.Router();
 const client = new hbase.Client({host: 'lsd-prod-namenode-0.lsd.novalocal', port: 8080,protocol: 'https',
 krb5:{service_principal: 'HTTP/lsd-prod-namenode-0.lsd.novalocal',principal: username+"@LSD.NOVALOCAL"}
 });
-const table= client.table(username+':CittyTrafficHbase');
+const table= client.table(username+':CityTrafficHbase');
 /* GET users listing. */
 router.get('/', async function(req, res, next) {
     res.status(200);

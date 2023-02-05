@@ -3,7 +3,6 @@ package bigdata;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.validation.constraints.Null;
 
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.functions;
@@ -12,17 +11,12 @@ import org.apache.spark.sql.types.DataTypes;
 
 import scala.Tuple2;
 
-import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
-import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.Dataset;
-import org.apache.spark.sql.Encoders;
 import org.apache.spark.sql.Row;
-import org.apache.spark.api.java.JavaRDD;
 
 import static org.apache.spark.sql.functions.input_file_name;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.SequenceFileOutputFormat;
 
@@ -31,10 +25,10 @@ import static org.apache.spark.sql.functions.callUDF;
 
 
 public class CittyTrafficCleaner {
+        static String user="nalves";
         static List<String> paths;
-        // static String path="C:/Users/mcabi/Desktop/m2/ple/CittyTraffic/data/brute";
         static String path="/user/auber/data_ple/citytraffic/ResultatCSV";
-        static String pathResult="/user/nalves/cittyTrafic/Result";
+        static String pathResult="/user/"+user+"/cityTraffic/Result";
 
         static private void initPaths(){
                 paths=new ArrayList<String>();
@@ -79,15 +73,7 @@ public class CittyTrafficCleaner {
                 
         }, DataTypes.StringType);
 
-        spark.udf().register("changeFormatMinute", (String time) -> {
-                try{
-                        return time.substring(time.length()-2);
-
-                }catch(IndexOutOfBoundsException e){
-                        return "00";
-                }
-                
-        }, DataTypes.StringType);
+        
 
         spark.udf().register("getSecond", (String time) -> {
                 try{
@@ -114,29 +100,22 @@ public class CittyTrafficCleaner {
 
         spark.udf().register("horodateToHour", (String time) -> {
                 try{
-                        return time.split(" ")[1].split(":")[0];
+                        String hour=time.split(" ")[1].split(":")[0];
+                        if(hour.charAt(0)=='0'){
+                                return hour.charAt(1);
+                        }
+                        return hour;
 
 
                 }catch(IndexOutOfBoundsException e){
-                        return "00";
+                        return "0";
                 }
                 
     
 
         }, DataTypes.StringType);
 
-        spark.udf().register("horodateToMinute", (String time) -> {
-                try{
-                        return time.split(" ")[1].split(":")[1];
-
-
-                }catch(IndexOutOfBoundsException e){
-                        return "00";
-                }
-                
-    
-
-        }, DataTypes.StringType);
+        
 
         spark.udf().register("speedClean", (String speed) -> {
                         return speed.replace("V=", "");
@@ -156,7 +135,7 @@ public class CittyTrafficCleaner {
                         }
 
 
-                
+                        
         }, DataTypes.StringType);
 
         spark.udf().register("heureMinuteToHeure", (String time) -> {
@@ -169,15 +148,7 @@ public class CittyTrafficCleaner {
                 
         }, DataTypes.StringType);
 
-        spark.udf().register("heureMinuteToMinute", (String time) -> {
-                try{
-                        return time.split(":")[1];
-
-                }catch(IndexOutOfBoundsException e){
-                        return "00";
-                }
-                
-        }, DataTypes.StringType);
+        
 
         spark.udf().register("typeUnification", (String time) -> {
                 //Velo ou trottinette
@@ -251,7 +222,6 @@ public class CittyTrafficCleaner {
                         else if(name.equals("HORODATE")){
                                 df=df.withColumn("JOUR", callUDF("horodateToDay",col(name)));
                                 df=df.withColumn("HEURE", callUDF("horodateToHour",col(name)));
-                                df=df.withColumn("MINUTE", callUDF("horodateToMinute",col(name)));
 
 
                                 df=df.drop(name);
@@ -263,7 +233,6 @@ public class CittyTrafficCleaner {
 
                         }
                         else if(name.equals("HEURE")){
-                                df=df.withColumn("MINUTE", callUDF("heureMinuteToMinute",col(name)));
                                 df=df.withColumn("HEURE", callUDF("heureMinuteToHeure",col(name)));
 
                         }
@@ -272,7 +241,6 @@ public class CittyTrafficCleaner {
                         }
 
                         else if(name.equals("HEURE/MINUTE")){
-                                df=df.withColumn("MINUTE", callUDF("changeFormatMinute",col(name)));
                                 df=df.withColumn("HEURE", callUDF("changeFormatHour",col(name)));
                                 df=df.drop(name);
 
@@ -319,7 +287,6 @@ public class CittyTrafficCleaner {
                 if(!vitesseExist){
                         df=df.withColumn("VITESSE", functions.lit(null));
                 }
-                df.show();
                 if(dfFinal.isEmpty()){
                         dfFinal=df;
                 }
@@ -327,9 +294,8 @@ public class CittyTrafficCleaner {
                         dfFinal=dfFinal.unionByName(df);
                 }
         }
-        dfFinal=dfFinal.select(col("JOUR"),col("HEURE"),col("MINUTE"),col("TYPE"),col("VITESSE"),col("SENS"),col("RADAR"));
-        dfFinal.show();
-        JavaPairRDD<Text, Text> rddFinal =dfFinal.toJavaRDD().mapToPair(row ->new Tuple2<Text,Text>(new Text(row.getString(0)+","+row.getString(1)+","+row.getString(6)),new Text(row.getString(3)+","+row.getString(4)+","+row.getString(5))));
+        dfFinal=dfFinal.select(col("JOUR"),col("HEURE"),col("TYPE"),col("VITESSE"),col("SENS"),col("RADAR"));
+        JavaPairRDD<Text, Text> rddFinal =dfFinal.toJavaRDD().mapToPair(row ->new Tuple2<Text,Text>(new Text(row.getString(0)+","+row.getString(1)+","+row.getString(5)),new Text(row.getString(2)+","+row.getString(3)+","+row.getString(4))));
         rddFinal.saveAsHadoopFile(pathResult, Text.class, Text.class, SequenceFileOutputFormat.class);
        
         

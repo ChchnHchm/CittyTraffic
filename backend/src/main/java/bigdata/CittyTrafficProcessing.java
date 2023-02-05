@@ -25,7 +25,6 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.spark.sql.SparkSession;
 import bigdata.utilties.CittyTrafficValue;
-import bigdata.utilties.CittyTrafficHbase;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.hadoop.io.Text;
@@ -34,9 +33,10 @@ import bigdata.utilties.*;
 
 
 public class CittyTrafficProcessing extends Configured implements Tool,Serializable{
-    private static final byte[] TABLE_NAME = Bytes.toBytes("nalves:CittyTrafficHbase");
+	private static String user="nalves";
+    private static final byte[] TABLE_NAME = Bytes.toBytes(user+":CityTrafficHbase");
     private static final String[]  FAMILYS = {"key","type","direction","measure"}; 
-	private static String pathResult="/user/nalves/cittyTrafic/Result";
+	private static String pathResult="/user/"+user+"/cityTraffic/Result";
 
 		public static void createOrOverwrite(Admin admin, HTableDescriptor table) throws IOException {
 			if (admin.tableExists(table.getTableName())) {
