@@ -6,8 +6,18 @@ import menuBar from "@/components/MenuBar.vue";
 import infoCard from "@/components/infoCard.vue";
 import timeRange from  "@/components/timeRange.vue";
 import datepicker from "@/components/datePicker.vue";
+import {CityTrafficAPI} from "@/store/cityTrafficAPI.js";
 </script>
 <script>
+///// TEST ///////
+
+let data = await CityTrafficAPI.getByDate("2022-10-12");
+// let data =await CityTrafficAPI.getByHours("2022-10-12","8");
+// let data =await CityTrafficAPI.getByRadarDate("P13","2022-10-12");
+// let data =await CityTrafficAPI.getByRadarHours("P13","2022-10-12","8");
+
+console.log(data);
+/////////////////
 
 export default {
   name: 'App',
