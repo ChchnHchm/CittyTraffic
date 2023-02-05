@@ -20,25 +20,9 @@ router.get('/', async function(req, res, next) {
 router.get('/getDate', async function(req, res, next) {
   res.setHeader('Content-Type',"application/json");
   try {
-  
-    var stringFilter=date+","+hour+".*";
-    table.scan({
-        filter: {
-            "op":"MUST_PASS_ALL","type":"FilterList","filters":[{
-                "op":"EQUAL",
-                "type":"RowFilter",
-                "comparator":{"value":stringFilter,"type":"RegexStringComparator"}
-              }
-            ]
-        }
-    },(error, cells) => {
-        assert.ifError(error);
-        console.log(cells)
-        res.status(200).json(cells);
-      })
-
+    console.log("FINAL"+filterFunctions.filterDate(client.table(username+':CittyTrafficHbase'),req.query.date));
     
-    // res.status(200).json(); //rajouter fonction
+    res.status(200).json(); //rajouter fonction
   } catch (error) {
     console.error(error);
     await res.status(424).json({error});
@@ -53,9 +37,21 @@ router.get('/getHours', async function(req, res, next) {
   try {
     // date :  req.query.date
     // hours :  req.query.hours
-    console.log(filterFunctions.filterDateAndHour(client.table(username+':CittyTrafficHbase'),req.query.date,req.query.hours));
-
-    res.status(200).json(); //rajouter fonction
+    var stringFilter=req.query.date+","+req.query.hours+".*";
+    table.scan({
+        filter: {
+            "op":"MUST_PASS_ALL","type":"FilterList","filters":[{
+                "op":"EQUAL",
+                "type":"RowFilter",
+                "comparator":{"value":stringFilter,"type":"RegexStringComparator"}
+              }
+            ]
+        }
+    },(error, cells) => {
+        assert.ifError(error);
+        console.log(cells)
+        res.status(200).json(cells);
+      })
   } catch (error) {
     console.error(error);
     await res.status(424).json({error});
