@@ -1,5 +1,5 @@
-var filters = require('hbase-client').filters;
-export const filterFunctions =  {
+var filters = require('hbase').filters;
+const filterFunctions =  {
 
  filterDateAndHour: function (table,date,hour){
     var stringFilter=date+","+hour+".*";
@@ -79,3 +79,5 @@ function resultScan(error,result){
     }
     return result;
 }
+
+exports.filterFunctions = filterFunctions;
