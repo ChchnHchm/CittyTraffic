@@ -1,6 +1,7 @@
 var filters = require('hbase-client').filters;
+export const filterFunctions =  {
 
-function filterDateAndHour(table,date,hour){
+ filterDateAndHour: function (table,date,hour){
     var stringFilter=date+","+hour+".*";
     table.scan({
         filter: {
@@ -15,9 +16,9 @@ function filterDateAndHour(table,date,hour){
         assert.ifError(error)
       })
 
-}
+},
 
-function filterDate(table,date){
+ filterDate: function(table,date){
     var stringFilter=date+".*";
     table.scan({
         filter: {
@@ -32,9 +33,9 @@ function filterDate(table,date){
         assert.ifError(error)
       })
 
-}
+},
 
-function filterDateAndRadar(table,date,radar){
+ filterDateAndRadar :function(table,date,radar){
     var filterBigin=date+".*";
     var filterEnd=".+"+radar;
     return table.scan({
@@ -54,9 +55,9 @@ function filterDateAndRadar(table,date,radar){
         assert.ifError(error)
       }).get(resultScan);
 
-}
+},
 
-function filterHourAndRadar(table,date,hour,radar){
+ filterHourAndRadar:function(table,date,hour,radar){
     var stringFilter=date+","+hour+","+radar;
     return table.scan({
         filter: {
@@ -71,7 +72,7 @@ function filterHourAndRadar(table,date,hour,radar){
         assert.ifError(error)
       }).get(resultScan)
 }
-
+}
 function resultScan(error,result){
     if(error){
         throw error;

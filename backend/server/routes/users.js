@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
-import * as filter from "../utilities/filter.js" 
-const client = new hbase.Client({host: 'nalves@147.210.117.54', port: 3000})
+import  { filterFunctions } from "../utilities/filter.js" ;
+const client = new hbase.Client({host: 'nalves@147.210.117.54', port: 3000});
 /* GET users listing. */
 router.get('/', async function(req, res, next) {
     res.status(200);
