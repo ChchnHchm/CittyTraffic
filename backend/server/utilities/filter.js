@@ -58,6 +58,7 @@ const filterFunctions =  {
 
  filterHourAndRadar:function(table,date,hour,radar){
     var stringFilter=date+","+hour+","+radar;
+    console.log(stringFilter);
     return table.scan({
         filter: {
             "op":"MUST_PASS_ALL","type":"FilterList","filters":[{
