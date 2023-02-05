@@ -24,7 +24,7 @@ const filterFunctions =  {
   console.log(stringFilter);
 
     var stringFilter=date+".*";
-   return table.scan({
+   table.scan({
         filter: {
             "op":"MUST_PASS_ALL","type":"FilterList","filters":[{
                 "op":"EQUAL",
@@ -44,7 +44,7 @@ const filterFunctions =  {
  filterDateAndRadar :function(table,date,radar){
     var filterBigin=date+".*";
     var filterEnd=".+"+radar;
-    return table.scan({
+    table.scan({
         filter: {
             "op":"MUST_PASS_ALL","type":"FilterList","filters":[{
                 "op":"EQUAL",
@@ -68,7 +68,7 @@ const filterFunctions =  {
  filterHourAndRadar:function(table,date,hour,radar){
     var stringFilter=date+","+hour+","+radar;
     console.log(stringFilter);
-    return table.scan({
+    table.scan({
         filter: {
             "op":"MUST_PASS_ALL","type":"FilterList","filters":[{
                 "op":"EQUAL",
