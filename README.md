@@ -1,9 +1,9 @@
 # CittyTraffic
 
 ## 1 - Compiler et envoyer dans la gateway :  
-    `1. !! LOGIN A CHANGER DANS backend/compil.sh !!`    
-    `2. cd backend/`    
-    `3. ./compile.sh`    
+    `1. cd backend/java`    
+    `2. ./compile.sh`  Le compile.sh compile le code java et l'envoie sur la gateway avec scp  
+    
 ## 2 - Depuis la gateway exécuter le code :   
     `1.   kinit`     
     `2.   export HADOOP_CLASSPATH=`hadoop classpath`:`hbase mapredcp`:/etc/hbase/conf:/usr/hdp/3.0.0.0-1634/hbase/lib/*`    
