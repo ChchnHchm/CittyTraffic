@@ -41,7 +41,7 @@ export const CityTrafficAPI =  {
                 params: {
                     radar: radar,
                     date: date,
-                    hour: hour
+                    hours: hour
                 }
             }
         ).then( res => res.data);
