@@ -65,10 +65,13 @@ public class CittyTrafficCleaner {
         }, DataTypes.StringType);
         spark.udf().register("changeFormatHour", (String time) -> {
                 try{
+                        if(time.length()<=2){
+                                return "0";
+                        }
                         return time.substring(0,time.length()-2);
 
                 }catch(IndexOutOfBoundsException e){
-                        return "00";
+                        return "0";
                 }
                 
         }, DataTypes.StringType);
@@ -80,7 +83,7 @@ public class CittyTrafficCleaner {
                         return ":"+time.substring(0,time.length()-2);
 
                 }catch(IndexOutOfBoundsException e){
-                        return "00";
+                        return "0";
                 }
                 
         }, DataTypes.StringType);
@@ -102,7 +105,9 @@ public class CittyTrafficCleaner {
                 try{
                         String hour=time.split(" ")[1].split(":")[0];
                         if(hour.charAt(0)=='0'){
-                                return hour.charAt(1);
+                                if(hour.length()>1){
+                                        return hour.charAt(1);
+                                }
                         }
                         return hour;
 
@@ -143,7 +148,7 @@ public class CittyTrafficCleaner {
                         return time.split(":")[0];
 
                 }catch(IndexOutOfBoundsException e){
-                        return "00";
+                        return "0";
                 }
                 
         }, DataTypes.StringType);

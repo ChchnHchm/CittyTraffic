@@ -80,7 +80,7 @@ router.get('/getRadarDate', async function(req, res, next) {
     // radar :  req.query.radar
     // date :  req.query.date
    var filterBigin=req.query.date+".*";
-    var filterEnd=".+"+req.query.radar;
+    var filterEnd=".+"+req.query.radar+"$";
     table.scan({
         filter: {
             "op":"MUST_PASS_ALL","type":"FilterList","filters":[{
@@ -122,7 +122,7 @@ router.get('/getRadarHours', async function(req, res, next) {
             "op":"MUST_PASS_ALL","type":"FilterList","filters":[{
                 "op":"EQUAL",
                 "type":"RowFilter",
-                "comparator":{"value":stringFilter,"type":"RegexStringComparator"}
+                "comparator":{"value":stringFilter,"type":"BinaryComparator"}
               }
             ]
         }
