@@ -1,7 +1,7 @@
 package bigdata.utilties;
 import java.io.Serializable;
 
-public class CittyTrafficValue implements Serializable{
+public class CityTrafficValue implements Serializable{
     private int countVELO=0;
     private int countPL=0;
     private int countVL=0;
@@ -13,13 +13,13 @@ public class CittyTrafficValue implements Serializable{
     private int sensEntree=0;
     private int speed;
 
-    public CittyTrafficValue(int speed,int sens,String type){
+    public CityTrafficValue(int speed,int sens,String type){
         this.speed=speed;
         initialiseCount(type, sens);
         
     }
 
-    public CittyTrafficValue(CittyTrafficValue val){
+    public CityTrafficValue(CityTrafficValue val){
         this.countVELO=val.countVELO;
         this.countPL=val.countPL;
         this.countMOTO=val.countMOTO;
@@ -104,7 +104,7 @@ public class CittyTrafficValue implements Serializable{
         return speed;
     }
 
-    public void sumTwoValues(CittyTrafficValue val2){
+    public void sumTwoValues(CityTrafficValue val2){
 
     //TYPE  
         this.countBUS=val2.countBUS+this.countBUS;

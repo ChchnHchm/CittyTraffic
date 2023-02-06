@@ -25,7 +25,7 @@ import static org.apache.spark.sql.functions.col;
 import static org.apache.spark.sql.functions.callUDF;
 
 
-public class CittyTrafficCleaner {
+public class CityTrafficCleaner {
         static String user="nalves";
         static List<String> paths;
         static String path="/user/auber/data_ple/citytraffic/ResultatCSV";
@@ -62,7 +62,7 @@ public class CittyTrafficCleaner {
 
         initPaths();
         
-        SparkSession spark = SparkSession.builder().appName("CittyTrafficProject").config("spark.master", "local").getOrCreate();
+        SparkSession spark = SparkSession.builder().appName("CityTrafficProject").config("spark.master", "local").getOrCreate();
         spark.udf().register("get_only_file_name", (String fullPath) -> {
                 if(fullPath.contains("Sortie") || fullPath.contains("Talence") || fullPath.contains("Talence") || fullPath.contains("S") || fullPath.contains("2")){
                      return "2";

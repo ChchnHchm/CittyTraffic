@@ -24,7 +24,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.spark.sql.SparkSession;
-import bigdata.utilties.CittyTrafficValue;
+import bigdata.utilties.CityTrafficValue;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.hadoop.io.Text;
@@ -32,7 +32,7 @@ import scala.Tuple2;
 import bigdata.utilties.*;
 
 
-public class CittyTrafficProcessing extends Configured implements Tool,Serializable{
+public class CityTrafficProcessing extends Configured implements Tool,Serializable{
 	public static String user="nalves";
     public  static  byte[] TABLE_NAME = null;
     private static  String[]  FAMILYS = {"key","type","direction","measure"}; 
@@ -61,7 +61,7 @@ public class CittyTrafficProcessing extends Configured implements Tool,Serializa
 			}
 		}
 
-		private void addRow(String key,CittyTrafficValue values,Table table){
+		private void addRow(String key,CityTrafficValue values,Table table){
 			try {
 				// String[] keyString=key.split(","); //Date =0 Heure=1 Radar=2
 				//Instantiating Put
@@ -101,12 +101,12 @@ public class CittyTrafficProcessing extends Configured implements Tool,Serializa
 			createTable(connection);
 			Table table =  connection.getTable(TableName.valueOf(TABLE_NAME)) ;
 			//add the lines from the rdd
-            SparkSession spark = SparkSession.builder().appName("CittyTrafficProject").config("spark.some.config.option", "some-value").getOrCreate();
+            SparkSession spark = SparkSession.builder().appName("CityTrafficProject").config("spark.some.config.option", "some-value").getOrCreate();
             JavaSparkContext sc =new JavaSparkContext(spark.sparkContext());
             //get RDD
             JavaPairRDD<Text, Text> rddWritable= sc.sequenceFile(pathResult, Text.class, Text.class);
             //change the type of the rdd
-            JavaPairRDD<String,CittyTrafficValue>rddCountTypes =rddWritable.mapToPair(tuple->{
+            JavaPairRDD<String,CityTrafficValue>rddCountTypes =rddWritable.mapToPair(tuple->{
                 String keyString=tuple._1().toString();
                 //VALEUR
                 String[] listValues=tuple._2().toString().split(",");
@@ -124,17 +124,12 @@ public class CittyTrafficProcessing extends Configured implements Tool,Serializa
                 catch(Exception e){
 
                 }
-                CittyTrafficValue values=new CittyTrafficValue(speed, sens,listValues[0]);
-                return new Tuple2<String,CittyTrafficValue>(keyString,values); 
+                CityTrafficValue values=new CityTrafficValue(speed, sens,listValues[0]);
+                return new Tuple2<String,CityTrafficValue>(keyString,values); 
             });
             rddCountTypes= rddCountTypes.reduceByKey((x,y)->{
                 x.sumTwoValues(y);
                 return x;
-            });
-            rddCountTypes.map(t->{
-                CittyTrafficValue val=t._2();
-                val.meanOfSpeed();
-                return t;
             });
 			
 			rddCountTypes.collect().forEach(tuple->addRow(tuple._1(),tuple._2(), table));
@@ -151,7 +146,7 @@ public class CittyTrafficProcessing extends Configured implements Tool,Serializa
 		TABLE_NAME = Bytes.toBytes(user+":CityTrafficHbase");
 		pathResult="/user/"+user+"/cityTraffic/Result";
 		sc.close();
-		int exitCode = ToolRunner.run(HBaseConfiguration.create(), new CittyTrafficProcessing(), args);
+		int exitCode = ToolRunner.run(HBaseConfiguration.create(), new CityTrafficProcessing(), args);
 		System.exit(exitCode);
 	}
 }
