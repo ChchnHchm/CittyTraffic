@@ -54,11 +54,7 @@ export default {
         } 
     },
     async mounted(){
-        console.log(this.data[0]);
-        if(this.data[2] == "all"){
-        }else{
-            this.options.scales.x.time.unit = this.data[2];
-        } 
+        this.options.scales.x.time.unit = this.data[2];
         this.chartData = {
             datasets: [
                 await initData(this.data),

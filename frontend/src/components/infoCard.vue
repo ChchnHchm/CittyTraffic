@@ -18,7 +18,6 @@ import { createApp, h } from "vue";
             <p>Capteur : {{RadarCounter.name}} </p>
         </div>
         <div id="ButtonsOptions">
-            <button class="buttonChange" type="button" @click="changeData(`day`)" >Day</button>
             <button class="buttonChange" type="button" @click="changeData(`hour`)">Hour</button>
             <button class="buttonChange" type="button" @click="changeData(`all`)">ALL Radar</button>
         </div>
@@ -31,11 +30,7 @@ async function changeData(displayType){
     document.querySelectorAll(".temp").forEach(el => el.remove());
     const dateFormat = dateCounter.date.getFullYear()+ "-" + (dateCounter.date.getMonth()+1) + "-" + dateCounter.date.getDate();
     let data = null;
-    if(displayType == "day"){
-        //données par jours
-        //data = await CityTrafficAPI
-        data = await CityTrafficAPI.getByDate(dateFormat);
-    }else if(displayType == "all"){
+    if(displayType == "all"){
         //données pour touts les radar
         data = await CityTrafficAPI.getByHours(dateFormat,HourCounter.Hour);
     }else{
