@@ -35,6 +35,7 @@ async function initData(data){
                 label: data[1],
                 data: data[0],
                 backgroundColor: '#f87979',
+                showLine: false
         };
 }
 
