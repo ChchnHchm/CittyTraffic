@@ -35,7 +35,6 @@ router.get('/getDate', async function(req, res, next) {
         res.status(200).json(cells);
 
       });
-    res.status(200).json(); //rajouter fonction
   } catch (error) {
     console.error(error);
     await res.status(424).json({error});
@@ -139,11 +138,3 @@ router.get('/getRadarHours', async function(req, res, next) {
 
 module.exports = router;
 
- 
-
-function resultScan(error,result){
-  if(error){
-      throw error;
-  }
-  return result;
-}
