@@ -138,11 +138,13 @@ export default {
   align-items: center;
 }
 #SensorDiplay{
+  cursor: pointer;
   width: 30px;
   height: 30px;
 } 
 
 #sensors{
+  cursor: pointer;
   width: 30px;
   height: 30px;
   margin: 10px;

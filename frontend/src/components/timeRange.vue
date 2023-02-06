@@ -3,7 +3,7 @@
   <p>Time :  {{range}} H</p>
   <div id="inputRange">
   <input v-model="range" type="range" min="0" max="23" class="slider" id="Range" @change="changeTime" >
-  <input type="reset" @click="resetTime"  />
+  <input id="resetRange" type="reset" @click="resetTime"  />
   </div>
 </div>
 </template>
@@ -38,8 +38,12 @@ export default {
 #RangeSlider{
     width: 20vh;
 }
-
+#resetRange{
+  cursor: pointer;
+}  
+ 
 #Range{
+  cursor: pointer;
   width: 100%;
   height: 10px;
   background: #d3d3d3;
