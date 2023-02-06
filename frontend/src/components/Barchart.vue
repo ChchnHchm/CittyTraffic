@@ -1,12 +1,12 @@
 <template>
 <div>
-     <Line class="Chart" :id="id" v-if="loaded" :data="chartData" :options="options" ref="line" /> 
+     <Bar class="Chart" :id="id" v-if="loaded" :data="chartData" :options="options" ref="bar" /> 
 </div>
 </template>
  
 <script>
-import {Line} from "vue-chartjs";
-import {option} from "@/store/linechartConfig.js";
+import {Bar} from "vue-chartjs";
+import {option} from "@/store/Barchartconfig.js";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -16,18 +16,17 @@ import {
   Title,
   Tooltip,
   Legend,
-  TimeScale
+  TimeScale,
+  BarElement
 } from 'chart.js'
 import 'chartjs-adapter-luxon';
 ChartJS.register(
   CategoryScale,
   LinearScale,
-  PointElement,
-  LineElement,
   Title,
   Tooltip,
   Legend,
-  TimeScale
+  BarElement
 )
 
 async function initData(data){
@@ -40,9 +39,9 @@ async function initData(data){
 }
 
 export default {
-    name:'lineChart',
+    name:'BarChart',
     components:{
-        Line,
+        Bar,
     },
     props: ["data"], 
     data(){

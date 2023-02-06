@@ -3,7 +3,8 @@ import {dateCounter}  from "@/store/Date.js"
 import {HourCounter}  from "@/store/Hour.js"
 import {RadarCounter}  from "@/store/Radar.js"
 import {CityTrafficAPI} from "@/store/cityTrafficAPI.js";
-import Chart from "@/components/chart.vue";
+import lineChart from "@/components/chart.vue";
+import  BarChart from "@/components/Barchart.vue";
 import { createApp, h } from "vue"; 
 </script> 
 
@@ -33,7 +34,7 @@ async function changeData(displayType){
     if(displayType == "day"){
         //données par jours
         //data = await CityTrafficAPI
-        data = await CityTrafficAPI.getByRadarDate(RadarCounter.name,dateFormat);
+        data = await CityTrafficAPI.getByDate(dateFormat);
     }else if(displayType == "all"){
         //données pour touts les radar
         data = await CityTrafficAPI.getByHours(dateFormat,HourCounter.Hour);
@@ -53,12 +54,12 @@ async function changeData(displayType){
         }
         return;
     }
-    
     let div = document.getElementById("noData");
     if(div){
         div.remove();
     } 
-    
+    let nbEnterDay = 0;
+    let nbExitDay = 0;
     let mapDataHour = new Map();
     let divEnter = document.createElement("div");
     divEnter.setAttribute("class","temp");
@@ -74,18 +75,39 @@ async function changeData(displayType){
         const type = value.column.split(':');
         if(keyDate[1] == HourCounter.Hour ){
             if(value.column == "direction:enter"){
-                divEnter.innerHTML = value.$ + "  Véhicule entrant";
+                divEnter.innerHTML = value.$ + "  Véhicule entrant ";
             }else if (value.column == "direction:exit"){
-                divExit.innerHTML = value.$ + "  Véhicule sortant";
+                divExit.innerHTML = value.$ + "  Véhicule sortant ";
             }
-        } 
+        }
+        if(value.column == "direction:enter"){
+            try {
+                nbEnterDay = nbEnterDay + parseInt(value.$,10);
+            } catch (error) {
+                console.error(error);
+            }
+        }else if (value.column == "direction:exit"){
+            try {
+                nbExitDay = nbExitDay + parseInt(value.$,10);
+            } catch (error) {
+                console.error(error);
+            }
+        }
         if(mapDataHour.has(type[1])){
             let dataset = mapDataHour.get(type[1]);
-            dataset.push({x:convertDate(keyDate),y:value.$});
+            if(displayType == "all"){
+                dataset.push({x:keyDate[2],y:value.$});
+            }else{
+                dataset.push({x:convertDate(keyDate),y:value.$});
+            }
         }else{
             mapDataHour.set(type[1],[]);
             let dataset = mapDataHour.get(type[1]);
-            dataset.push({x:convertDate(keyDate),y:value.$});
+            if(displayType == "all"){
+                dataset.push({x:keyDate[2],y:value.$});
+            }else{
+                dataset.push({x:convertDate(keyDate),y:value.$});
+            }
         }
     });
     let divInfos = document.createElement("div");
@@ -97,7 +119,10 @@ async function changeData(displayType){
     mapDataHour.forEach((val,key) => {
         let componentsApp = createApp({
             setup(){
-                return () => h(Chart, {data: [val,key] },"")
+                if(displayType == "all"){
+                    return () => h(BarChart, {data: [val,key,displayType] },"")
+                }
+                return () => h(lineChart, {data: [val,key,displayType] },"")
             } 
         });
         const wrapper = document.createElement("div");
@@ -106,9 +131,6 @@ async function changeData(displayType){
         componentsApp.mount(wrapper);
         document.getElementById("infos").appendChild(wrapper);
     });
-
-
-
 }
 function convertDate(date){
     let mydate = date[0].split('-');

@@ -38,6 +38,9 @@ export default {
 </template>
 
 <style >
+@media (prefers-color-scheme: dark){
+
+} 
 html.dark{
   color-scheme: dark;
   background-color: #000000;
