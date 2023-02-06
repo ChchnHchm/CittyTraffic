@@ -3,6 +3,7 @@ package bigdata;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.util.*;  
 
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.functions;
@@ -51,7 +52,14 @@ public class CittyTrafficCleaner {
         }
         public static void main(String[] args) throws Exception {
 
-       
+        Scanner sc = new Scanner(System.in);
+	System.out.println("Entrer votre login:");
+	String login = sc.nextLine();
+	user = login;
+        path="/user/auber/data_ple/citytraffic/ResultatCSV";
+        pathResult="/user/"+user+"/cityTraffic/Result";
+	sc.close();
+
         initPaths();
         
         SparkSession spark = SparkSession.builder().appName("CittyTrafficProject").config("spark.master", "local").getOrCreate();

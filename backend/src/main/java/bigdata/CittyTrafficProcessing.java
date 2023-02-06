@@ -1,6 +1,6 @@
 package bigdata;
 
-
+import java.util.*;  
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -33,10 +33,10 @@ import bigdata.utilties.*;
 
 
 public class CittyTrafficProcessing extends Configured implements Tool,Serializable{
-	private static String user="nalves";
-    private static final byte[] TABLE_NAME = Bytes.toBytes(user+":CityTrafficHbase");
-    private static final String[]  FAMILYS = {"key","type","direction","measure"}; 
-	private static String pathResult="/user/"+user+"/cityTraffic/Result";
+	public static String user="nalves";
+    public  static  byte[] TABLE_NAME = null;
+    private static  String[]  FAMILYS = {"key","type","direction","measure"}; 
+	public  static String pathResult=null;
 
 		public static void createOrOverwrite(Admin admin, HTableDescriptor table) throws IOException {
 			if (admin.tableExists(table.getTableName())) {
@@ -144,6 +144,13 @@ public class CittyTrafficProcessing extends Configured implements Tool,Serializa
 	
 
 	public static void main(String[] args) throws Exception {
+		Scanner sc = new Scanner(System.in);
+		System.out.println("Entrer votre login:");
+		String login = sc.nextLine();
+		user = login;
+		TABLE_NAME = Bytes.toBytes(user+":CityTrafficHbase");
+		pathResult="/user/"+user+"/cityTraffic/Result";
+		sc.close();
 		int exitCode = ToolRunner.run(HBaseConfiguration.create(), new CittyTrafficProcessing(), args);
 		System.exit(exitCode);
 	}
